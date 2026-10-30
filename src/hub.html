@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Builders — Design at Loka</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>try{const t=JSON.parse(localStorage.getItem("builders:theme"));if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}</script>
+<style>
+:root{
+  --bg:#ffffff;--fg:#000000;--muted:#6b6b70;--faint:#a7a7ad;--line:#e6e6e9;--surface:#f4f4f5;--raised:#ffffff;--scrim:rgba(0,0,0,.42);
+  --ai:#6b4eff;--ai-tint:#efebff;--ok:#1f8f4e;--warn:#d98c1a;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 16px 40px rgba(0,0,0,.08);
+  --font:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color-scheme:light;box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#000000;--fg:#ffffff;--muted:#a1a1a6;--faint:#6b6b70;--line:#2a2a2d;--surface:#131315;--raised:#1c1c1f;--scrim:rgba(0,0,0,.62);
+  --ai:#a594ff;--ai-tint:#26213f;--shadow:0 1px 3px rgba(0,0,0,.5),0 16px 40px rgba(0,0,0,.5);color-scheme:dark}}
+:root[data-theme="light"]{color-scheme:light}
+:root[data-theme="dark"]{--bg:#000000;--fg:#ffffff;--muted:#a1a1a6;--faint:#6b6b70;--line:#2a2a2d;--surface:#131315;--raised:#1c1c1f;--scrim:rgba(0,0,0,.62);
+  --ai:#a594ff;--ai-tint:#26213f;--shadow:0 1px 3px rgba(0,0,0,.5),0 16px 40px rgba(0,0,0,.5);color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 84px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--font);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:60;background:var(--bg)}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:inherit}
+input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--fg);outline-offset:3px;border-radius:6px}
+h1,h2,h3,h4,p{margin:0}
+.wrap{max-width:1280px;margin:0 auto;padding:0 40px}
+@media (max-width:720px){.wrap{padding:0 20px}}
+.muted{color:var(--muted)}.faint{color:var(--faint)}
+.h-hero{font-size:clamp(44px,7.4vw,96px);line-height:.98;letter-spacing:-.045em;font-weight:700}
+.h1{font-size:clamp(40px,5vw,64px);line-height:1;letter-spacing:-.04em;font-weight:700}
+.h2{font-size:28px;line-height:1.15;letter-spacing:-.025em;font-weight:600}
+.h3{font-size:20px;line-height:1.25;letter-spacing:-.015em;font-weight:600}
+.lead{font-size:20px;line-height:1.45;letter-spacing:-.01em;color:var(--muted);max-width:62ch}
+.label{font-size:13px;color:var(--muted);font-weight:500}
+.small{font-size:13px}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:24px;height:68px}
+.logo{display:flex;align-items:center;gap:12px;font-weight:600;font-size:15px;white-space:nowrap}
+.logo b{letter-spacing:.18em;font-weight:700}.logo i{width:1px;height:16px;background:var(--line)}
+.nav{flex:1;display:flex;justify-content:center;gap:36px}
+.nav a{font-size:14px;font-weight:500;color:var(--muted);padding:6px 0;position:relative;transition:color .15s}
+.nav a:hover{color:var(--fg)}
+.nav a[aria-current="page"]{color:var(--fg);font-weight:600}
+
+.right{display:flex;align-items:center;gap:10px}
+.icon-btn{width:38px;height:38px;border-radius:999px;border:1px solid var(--line);display:grid;place-items:center;transition:border-color .15s}
+.icon-btn:hover{border-color:var(--faint)}
+.icon-btn svg{width:16px;height:16px}
+.avatar{width:34px;height:34px;border-radius:999px;background:var(--fg);color:var(--bg);display:grid;place-items:center;font-size:11px;font-weight:600;flex:none}
+@media (max-width:760px){.top .wrap{flex-wrap:wrap;height:auto;padding-top:12px;row-gap:4px;column-gap:8px;justify-content:space-between}.logo{gap:8px;font-size:14px}.right{gap:6px}.right .btn-sm{padding:0 11px;font-size:12.5px}.right .icon-btn{width:34px;height:34px}.nav{order:3;width:100%;flex:none;justify-content:flex-start;gap:24px;padding:4px 0 12px}.nav a[aria-current="page"]::after{left:0;margin-left:0}.hide-sm{display:none}}
+
+/* buttons, chips */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:44px;padding:0 20px;border-radius:999px;font-weight:600;font-size:14px;white-space:nowrap;transition:transform .15s ease,background .15s,border-color .15s,opacity .15s}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--fg);color:var(--bg)}
+.btn-primary:hover{opacity:.88}
+.btn-ghost{border:1px solid var(--line);background:var(--bg)}
+.btn-ghost:hover{border-color:var(--faint)}
+.btn-lg{height:54px;padding:0 26px;font-size:16px}
+.btn-sm{height:38px;padding:0 15px;font-size:13px}
+.btn[disabled]{color:var(--faint);border-color:var(--line);background:var(--bg);cursor:not-allowed}
+.btn[disabled]:active{transform:none}
+.btn-primary[disabled]{opacity:.35}
+.soon{font-size:11px;font-weight:600;color:var(--muted);background:var(--surface);border-radius:999px;padding:2px 8px}
+kbd{font:600 11px var(--font);color:var(--muted);background:var(--surface);border-radius:6px;padding:2px 6px}
+.chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border:1px solid var(--line);border-radius:999px;font-size:13px;font-weight:500;white-space:nowrap;background:var(--bg)}
+button.chip:hover{border-color:var(--faint)}
+.link{font-weight:600;font-size:14px}
+.mark{width:8px;height:8px;border-radius:999px;display:inline-block;flex:none}
+.mark.shipped{background:var(--fg)}.mark.progress{border:1.5px solid var(--fg)}.mark.scoping{border:1.5px dashed var(--faint)}
+.status{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);font-weight:500}
+.seg{display:inline-flex;background:var(--surface);border-radius:999px;padding:4px;gap:2px}
+.seg button{height:32px;padding:0 14px;border-radius:999px;font-size:13px;font-weight:500;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--bg);color:var(--fg);font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+
+main{min-height:70vh}
+.page{padding-top:56px;padding-bottom:128px}
+section+section{margin-top:96px}
+.crumb{margin-bottom:24px;font-size:13px;font-weight:500;color:var(--muted)}
+.crumb ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.crumb li{display:inline-flex;align-items:center;gap:6px}
+.crumb li svg{color:var(--faint);flex:none}
+.crumb a{color:var(--muted)}
+.crumb [aria-current="page"]{color:var(--fg)}
+.crumb-back{display:none;align-items:center;gap:4px;font-size:14px;font-weight:600;color:var(--fg)!important;margin-left:-4px}
+.crumb-back svg{transition:transform var(--t2) var(--ease)}
+@media (hover:hover){.crumb a:hover{color:var(--fg)}.crumb-back:hover svg{transform:translateX(-3px)}}
+@media (max-width:760px){.crumb ol{display:none}.crumb-back{display:inline-flex;background-image:none!important}}
+.page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:32px;flex-wrap:wrap}
+.page-head .lead{margin-top:16px}
+.facts-line{font-size:13px;color:var(--muted);font-weight:500;margin-bottom:14px;display:flex;gap:8px 16px;flex-wrap:wrap;align-items:center}
+.acts{display:flex;gap:10px;flex-wrap:wrap}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:40px}
+.oneminute{background:var(--surface);border-radius:20px;padding:28px 32px;margin-top:48px}
+.oneminute>.label{display:block;margin-bottom:16px}
+.oneminute .cols{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.oneminute h4{margin:0 0 6px;font-size:15px;font-weight:600}
+.oneminute .cols p{font-size:16px;line-height:1.55;color:var(--muted);max-width:52ch}
+@media (max-width:760px){.oneminute{padding:22px 20px}.oneminute .cols{grid-template-columns:1fr;gap:18px}}
+.three>div{border-top:1px solid var(--line);padding-top:20px}
+.three h4{margin:0 0 10px;font-size:13px;font-weight:600;color:var(--muted)}
+.three p{font-size:17px;line-height:1.5}
+.three.small-p p{font-size:15px}
+@media (max-width:900px){.three{grid-template-columns:1fr;gap:24px}}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.sec-head p{color:var(--muted);margin-top:6px;font-size:15px}
+
+/* ===== visuals: the only colour ===== */
+.stage{position:relative;background:var(--surface);border-radius:20px;overflow:hidden;display:grid;place-items:center}
+.ui{background:var(--raised);border-radius:14px;box-shadow:var(--shadow);padding:16px;color:var(--fg)}
+.ai-chip{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:999px;background:var(--ai-tint);color:var(--ai);font-size:11px;font-weight:600}
+.lines i{display:block;height:5px;border-radius:5px;background:var(--line);margin-top:7px}
+.callout{background:var(--ai-tint);border-radius:9px;padding:8px 11px;font-size:12.5px;font-weight:500;display:flex;gap:8px;align-items:center}
+.callout::before{content:"";width:6px;height:6px;border-radius:9px;background:var(--ai);flex:none}
+.field{border:1px solid var(--ai);background:var(--ai-tint);border-radius:8px;padding:5px 9px;min-width:160px}
+.field small{display:block;font-size:9.5px;color:var(--muted)}.field b{font-size:12.5px}
+.mini-btns{display:flex;gap:6px;margin-top:10px}
+.mini-btns span{height:26px;padding:0 11px;border-radius:8px;font-size:11.5px;font-weight:600;display:inline-flex;align-items:center;border:1px solid var(--line)}
+.mini-btns span:first-child{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.play .anim-type{display:inline-block;overflow:hidden;white-space:nowrap;vertical-align:bottom;border-right:2px solid var(--ai);animation:type 2.6s steps(44,end) .2s both,caret .8s step-end infinite}
+@keyframes type{from{max-width:0}to{max-width:100%}}
+@keyframes caret{50%{border-color:transparent}}
+.play .anim-in{animation:rise .5s cubic-bezier(.2,.7,.2,1) both}
+.play .anim-in.d1{animation-delay:.6s}.play .anim-in.d2{animation-delay:1.1s}.play .anim-in.d3{animation-delay:1.6s}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.play .draw{stroke-dasharray:600;stroke-dashoffset:600;animation:draw 1.4s ease .2s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.play .ring{transform-origin:center;transform-box:fill-box;animation:ring 1.6s ease 1.4s both}
+@keyframes ring{0%{opacity:0;transform:scale(.4)}40%{opacity:1;transform:scale(1.25)}100%{opacity:1;transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.play *{animation:none!important;stroke-dashoffset:0!important}}
+/* live pattern demos from the library, mounted in shadow roots */
+.lstage{display:block;height:220px;border-radius:18px;overflow:hidden;background:#f5f5f7;position:relative}
+.lstage.hero{height:clamp(320px,42vw,460px);border-radius:28px}
+.lstage.tool{height:320px;border-radius:20px}
+.lstage.mini{height:180px;border-radius:14px}
+.lstage.row{height:150px;border-radius:12px}
+
+/* AI Cards, rebuilt from the Figma deck (44:2): colour, glow, grain and type are the real values */
+.card{position:relative;aspect-ratio:240/336;border-radius:4.08%/2.91%;overflow:hidden;container-type:inline-size;isolation:isolate;background:var(--bg);font-family:"Helvetica Neue",Helvetica,Arial,Inter,sans-serif;-webkit-font-smoothing:antialiased;text-align:left}
+.card .glow{position:absolute;border-radius:50%;background:var(--glow);filter:blur(17cqw);z-index:-1}
+.card::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.18;mix-blend-mode:multiply;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");background-size:40cqw}
+.card .lbl{position:absolute;font-size:3.06cqw;line-height:3.83cqw;text-transform:uppercase;white-space:nowrap}
+.card .tt{position:absolute;font-size:9.17cqw;font-weight:500;letter-spacing:-.03em}
+.card.back .lbl{color:#1b1b1b}.card.back .tt{color:var(--ink);line-height:8.67cqw}
+.card.front .lbl,.card.front .tt,.card.front .ds{color:#fff}.card.front .tt{line-height:8.16cqw}
+.card.front .ds{position:absolute;font-size:4.08cqw;line-height:5.1cqw;letter-spacing:-.02em;opacity:.9}
+.card.front .rule{position:absolute;height:1px;width:78.3cqw;background:#fff}
+.card.front .glass{position:absolute;left:18%;right:-6%;bottom:-8%;height:52%;border-radius:46% 54% 50% 50%;background:radial-gradient(circle at 32% 30%,rgba(255,255,255,.95),rgba(255,255,255,.25) 32%,transparent 62%),radial-gradient(circle at 72% 64%,rgba(255,255,255,.7),transparent 46%),radial-gradient(circle at 50% 50%,rgba(255,255,255,.18),transparent 70%);filter:blur(.4cqw);opacity:.85}
+.card.front .glass-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.card.front.has-img{background:none}.card.front.has-img::after{display:none}
+/* ===== home ===== */
+.hero{text-align:center;padding:104px 0 0}
+.pill{display:inline-flex;align-items:center;gap:10px;min-height:36px;padding:4px 14px 4px 5px;border-radius:999px;background:var(--surface);font-size:13.5px;font-weight:500;max-width:100%}
+.pill .tag{height:26px;padding:0 10px;border-radius:999px;background:var(--bg);border:1px solid var(--line);display:inline-flex;align-items:center;font-size:12px;font-weight:600;flex:none}
+.pill .tag.dark{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.hero h1{margin-top:28px}
+.hero .lead{margin:22px auto 0;text-align:center}
+.hero .acts{justify-content:center;margin-top:36px;gap:12px}
+.sections{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:112px}
+.sec-card .stage{height:320px}
+
+.sec-card .row{display:flex;justify-content:space-between;align-items:center;margin-top:22px}
+.sec-card p{color:var(--muted);margin-top:6px;font-size:15px}
+.short{margin-top:12px;display:flex;gap:6px 24px;flex-wrap:wrap}
+.short a{font-size:14px;font-weight:500}
+.short a::after{content:" ↗";color:var(--faint);font-size:12px}
+@media (max-width:900px){.sections{grid-template-columns:1fr;margin-top:72px}}
+@media (max-width:760px){.hero{padding-top:48px}.entry{padding-top:48px}kbd{display:none}.sec-card .stage{height:260px}}
+
+
+/* ===== work ===== */
+.tabs{display:flex;gap:26px;border-bottom:1px solid var(--line);padding-bottom:14px;margin-top:40px;flex-wrap:wrap;align-items:center}
+.tab{display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:500;color:var(--muted)}
+.tab b{font-weight:500;color:var(--faint);font-size:13px}
+.tab[aria-pressed="true"]{color:var(--fg);font-weight:600}.tab[aria-pressed="true"] b{color:var(--fg)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:48px 32px;margin-top:32px}
+@media (max-width:1000px){.grid3{grid-template-columns:repeat(2,1fr)}}@media (max-width:640px){.grid3{grid-template-columns:1fr}}
+.proj .stage{height:236px}
+
+.proj .type{position:absolute;top:12px;left:12px;height:24px;padding:0 10px;border-radius:999px;background:var(--raised);font-size:11.5px;font-weight:500;display:inline-flex;align-items:center;color:var(--fg)}
+.proj h3{margin-top:8px}
+.proj .desc{color:var(--muted);font-size:14.5px;margin-top:6px}
+.now{margin-top:12px;font-size:14.5px;font-weight:500}.now span{color:var(--muted)}
+.outcome{margin-top:12px;font-size:14.5px;font-weight:500}
+.empty-state{background:var(--surface);border-radius:24px;padding:40px;display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap}
+.empty-state p{color:var(--muted);margin-top:6px;max-width:60ch}
+.story{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin-top:48px}
+.story>div{border-top:1px solid var(--line);padding-top:20px}
+.story h4{margin:0 0 10px;font-size:13px;color:var(--muted);font-weight:600}
+.story p{font-size:17px}
+.story .big{border-top:2px solid var(--fg);margin-top:-1px}.story .big p{font-size:26px;line-height:1.2;letter-spacing:-.02em;font-weight:600}
+.story .big small{display:block;margin-top:10px;color:var(--muted);font-size:14px}
+@media (max-width:900px){.story{grid-template-columns:1fr}}
+.lower{display:grid;grid-template-columns:1.15fr 1fr;gap:64px;margin-top:72px}
+@media (max-width:1000px){.lower{grid-template-columns:1fr}}
+.two-demos{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.two-demos.wide{gap:40px}
+.lower.even{grid-template-columns:1fr 1fr;gap:40px}
+@media (max-width:640px){.two-demos{grid-template-columns:1fr}}
+.pmeta{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-top:12px}
+.pmeta b{font-weight:600;font-size:15px}.pmeta span{font-size:12.5px;color:var(--faint);white-space:nowrap}
+.trace{width:100%;border-collapse:collapse;font-size:14px}
+.trace th{font-size:12px;color:var(--faint);font-weight:500;text-align:left;padding:0 0 8px}
+.trace td{border-top:1px solid var(--line);padding:12px 12px 12px 0;color:var(--muted);font-weight:500;vertical-align:top}
+.trace td:first-child a,.trace td:first-child button{color:var(--fg);font-weight:600}
+.trace td:last-child{color:var(--fg);font-weight:600}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.trace td .tags{margin:-4px 0}
+.chip.tag{height:28px;padding:0 10px 0 12px;font-size:12.5px;font-weight:500;color:var(--fg);gap:7px;transition:background-color var(--t2) var(--ease),border-color var(--t2) var(--ease),transform var(--t3) var(--spring)}
+.chip.tag:active{transform:scale(.95);transition-duration:var(--t1)}
+.layer-dot{width:6px;height:6px;border-radius:999px;flex:none;background:var(--fg)}
+.layer-dot.trust{background:none;box-shadow:inset 0 0 0 1.5px var(--fg)}
+.trace a.chip.tag:hover{opacity:1}
+.map-legend{display:flex;gap:18px;align-items:center;font-size:13px;color:var(--muted);margin-top:28px}
+.map-legend span{display:inline-flex;align-items:center;gap:7px}
+.map-table{table-layout:fixed;min-width:760px}
+.map-table th:nth-child(1){width:23%}
+.map-table th:nth-child(2){width:25%}
+@media (max-width:760px){.map-table{min-width:0}.map-table thead{display:none}.map-table,.map-table tbody,.map-table tr,.map-table td{display:block;width:auto}.map-table tr{border-top:1px solid var(--line);padding:14px 0}.map-table td{border:0;padding:0}.map-table td:nth-child(2){font-size:13px;margin:2px 0 10px}.map-table td .tags{margin:0}}
+.facts{margin-top:24px}
+.facts div{display:flex;justify-content:space-between;gap:24px;border-top:1px solid var(--line);padding:14px 0;font-size:14px}
+.facts div span:first-child{font-weight:600}.facts div span:last-child{color:var(--muted);text-align:right}
+.next{display:flex;justify-content:space-between;align-items:flex-end;border-top:1px solid var(--line);margin-top:80px;padding-top:24px;gap:16px}
+
+/* ===== explore ===== */
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media (max-width:900px){.tools{grid-template-columns:1fr}}
+.tool .stage{height:320px}
+.tool .row{display:flex;justify-content:space-between;align-items:baseline;margin-top:22px;gap:12px}
+.tool .row .tt{display:flex;align-items:baseline;gap:4px 12px;flex-wrap:wrap}.tool .row .name{font-size:26px}.tool .row .meta{font-size:13px;color:var(--faint);font-weight:500;letter-spacing:0}
+.tool p{color:var(--muted);margin-top:6px}
+.fan{position:relative;width:100%;height:100%}
+.fan .card{position:absolute;width:150px;top:50%;left:50%;box-shadow:var(--shadow)}
+.rows .r{display:flex;align-items:center;gap:16px;border-top:1px solid var(--line);padding:18px 0;width:100%}
+.rows .r:last-child{border-bottom:1px solid var(--line)}
+.rows .r b{font-size:17px;letter-spacing:-.01em;font-weight:600;min-width:300px}
+.rows .r .c{color:var(--muted);font-size:14px;min-width:240px}
+.rows .r .u{flex:1;font-size:14px;font-weight:500}
+@media (max-width:900px){.rows .r{flex-wrap:wrap}.rows .r b,.rows .r .c{min-width:0}}
+.connect{background:var(--surface);border-radius:24px;padding:36px 40px;display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap}
+.chain{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px;color:var(--faint)}
+/* deck */
+.families{display:grid;grid-template-columns:repeat(6,1fr);gap:20px}
+@media (max-width:1000px){.families{grid-template-columns:repeat(3,1fr)}}
+.fam .card{transition:transform .25s ease,box-shadow .25s}
+.fam[aria-pressed="true"] .card{transform:translateY(-8px);box-shadow:var(--shadow)}
+.fam span{display:block;margin-top:12px;font-size:14px;color:var(--muted);font-weight:500}
+.fam[aria-pressed="true"] span{color:var(--fg);font-weight:600}
+.tray{display:grid;grid-template-columns:260px 1fr;gap:40px;background:var(--surface);border-radius:24px;padding:36px;margin-top:28px;align-items:center}
+.tray .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.tray .cards .card{box-shadow:var(--shadow);transition:transform .2s}
+.tray .cards button:hover .card{transform:translateY(-4px)}
+@media (max-width:900px){.tray{grid-template-columns:1fr}.tray .cards{grid-template-columns:repeat(2,1fr)}}
+/* pattern library */
+.libhead{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:28px}
+.lib{display:grid;grid-template-columns:232px 1fr;gap:48px}
+.rail{position:sticky;top:96px;align-self:start;margin-left:-12px}
+.rail h5{margin:0 0 6px 12px;font-size:12px;color:var(--faint);font-weight:500}
+.rail ul{list-style:none;margin:0 0 18px;padding:0}
+.rail button{width:100%;display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-radius:10px;font-size:14px;font-weight:500;color:var(--muted)}
+.rail button:hover{background:var(--surface);color:var(--fg)}
+.rail button[aria-current="true"]{background:var(--surface);color:var(--fg);font-weight:600}
+.rail button span{font-size:12px;color:var(--faint);font-variant-numeric:tabular-nums}
+.cap-head h2{font-size:32px;letter-spacing:-.03em;line-height:1.1}
+.cap-head p{color:var(--muted);margin-top:8px;font-size:16px}
+.cap-head .ex{font-size:14px;color:var(--faint);margin-top:4px}
+.cap-cards{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.layer{margin-top:44px}.layer h3{font-size:20px}.layer>p{color:var(--muted);font-size:14px;margin:4px 0 20px}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:36px 24px}
+.pgrid .name{font-weight:600;font-size:16px;letter-spacing:-.01em}
+.pgrid .use{color:var(--muted);font-size:14px;margin-top:4px}
+@media (max-width:900px){.lib{grid-template-columns:1fr}.rail{position:static;margin-left:0}.rail ul{display:flex;flex-wrap:wrap;gap:4px}.rail button{width:auto}}
+.ua{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+.ua>div{border-top:1px solid var(--line);padding-top:20px}
+.ua h4{margin:0 0 10px;font-size:13px;color:var(--muted);font-weight:600}
+.ua p{font-size:20px;line-height:1.4;letter-spacing:-.01em;font-weight:500}
+@media (max-width:760px){.ua{grid-template-columns:1fr}}
+.summary-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;background:var(--surface);border-radius:20px;padding:16px}
+.summary-strip div{background:var(--bg);border-radius:14px;padding:16px 20px}
+.summary-strip b{font-size:30px;letter-spacing:-.03em;font-weight:600;margin-right:8px}
+.summary-strip span{font-weight:600}.summary-strip small{display:block;color:var(--muted);font-size:13px}
+@media (max-width:760px){.summary-strip{grid-template-columns:1fr 1fr}}
+/* modal */
+.scrim{position:fixed;inset:0;background:var(--scrim);z-index:80;display:flex;justify-content:center;align-items:flex-start;overflow:auto;padding:56px 20px;animation:fade .2s ease}
+@keyframes fade{from{opacity:0}}
+.modal{background:var(--bg);border-radius:28px;max-width:1120px;width:100%;padding:40px;box-shadow:0 30px 80px rgba(0,0,0,.25);position:relative;animation:pop .25s cubic-bezier(.2,.7,.2,1)}
+@keyframes pop{from{opacity:0;transform:translateY(12px) scale(.99)}}
+.modal .close{position:sticky;top:0;float:right;width:42px;height:42px;border-radius:999px;border:1px solid var(--line);display:grid;place-items:center;background:color-mix(in srgb,var(--bg) 75%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);z-index:2}
+.cd{display:grid;grid-template-columns:300px 1fr;gap:56px}
+.cd .left{position:sticky;top:0;align-self:start}
+.cd .left .card{box-shadow:var(--shadow)}
+.cd h2{font-size:40px;letter-spacing:-.035em;line-height:1.05;margin-top:12px}
+.cd .block{margin-top:30px}
+.cd .block>h4{margin:0 0 12px;font-size:13px;color:var(--muted);font-weight:600}
+.useref{display:flex;gap:12px;align-items:center;background:var(--surface);border-radius:14px;padding:14px 16px;margin-top:8px}
+.useref div{flex:1}.useref b{font-weight:600}.useref p{color:var(--muted);font-size:13px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.family-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:32px;border-top:1px solid var(--line);padding-top:24px}
+.family-strip button{display:flex;gap:12px;align-items:center;padding:10px;border-radius:14px;background:var(--surface);text-align:left}
+.family-strip button[aria-current="true"]{background:none;box-shadow:inset 0 0 0 1.5px var(--fg)}
+.family-strip .card{width:54px;flex:none;border-radius:6px}
+.family-strip b{font-size:13px;font-weight:600;display:block}.family-strip small{font-size:12px;color:var(--muted)}
+@media (max-width:860px){.cd{grid-template-columns:1fr}.cd .left{position:static;max-width:240px}.two{grid-template-columns:1fr}.family-strip{grid-template-columns:1fr 1fr}.modal{padding:24px}}
+/* palette */
+.palette{background:var(--bg);border-radius:20px;max-width:640px;width:100%;box-shadow:0 30px 80px rgba(0,0,0,.3),0 0 0 1px var(--line);overflow:hidden;margin-top:72px;display:flex;flex-direction:column;max-height:calc(100dvh - 144px)}
+.palette .in{display:flex;align-items:center;gap:12px;padding:0 14px 0 20px;height:60px;border-bottom:1px solid var(--line);flex:none}
+.palette .in>svg{width:18px;height:18px;flex:none;color:var(--muted)}
+.palette input{flex:1;min-width:0;border:0;background:none;font-size:17px;outline:none;height:100%}
+.palette input::placeholder{color:var(--faint)}
+.pal-close{display:grid;place-items:center;height:30px;padding:0 6px;border-radius:8px;transition:background-color var(--t2) var(--ease)}
+.pal-close .k-cancel{display:none;font-size:15px;font-weight:500}
+@media (hover:hover){.pal-close:hover{background:var(--surface)}}
+.palette .res{overflow:auto;padding:6px 8px 8px;overscroll-behavior:contain;flex:1;min-height:0}
+.palette h5{margin:12px 12px 6px;font-size:12px;color:var(--faint);font-weight:500}
+.palette .it{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;cursor:pointer;scroll-margin:8px;transition:background-color var(--t1) var(--ease)}
+.palette .it>div{flex:1;min-width:0}
+.palette .it b{font-weight:600;font-size:14px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.palette .it small{color:var(--muted);font-size:12px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.palette .it .where{font-size:12px;color:var(--faint);font-weight:500;flex:none}
+.palette .it .enter{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;font-size:12px;color:var(--muted);background:var(--bg);box-shadow:0 0 0 1px var(--line);opacity:0;transform:translateX(-4px);transition:opacity var(--t2) var(--ease),transform var(--t2) var(--ease);flex:none}
+.palette .it[aria-selected="true"]{background:var(--surface)}
+.palette .it[aria-selected="true"] .enter{opacity:1;transform:none}
+.palette mark{background:none;color:inherit;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}
+.palette .ft{display:flex;gap:18px;align-items:center;padding:10px 20px;border-top:1px solid var(--line);font-size:12px;color:var(--muted);flex:none}
+.palette .ft kbd{margin-right:2px}
+.palette .ft-count{margin-left:auto}
+.palette .none{padding:40px 24px;text-align:center}.palette .none b{font-weight:600}.palette .none p{color:var(--muted);font-size:14px;margin-top:6px}
+.btn svg{width:16px;height:16px;flex:none}
+@media (max-width:760px){
+ .scrim:has(.palette){padding:0;align-items:stretch}
+ .palette{max-width:none;margin:0;border-radius:0;max-height:none;height:100dvh;box-shadow:none;padding-top:env(safe-area-inset-top,0px)}
+ .pal-close .k-esc{display:none}.pal-close .k-cancel{display:block}
+ .palette .ft{display:none}
+ .palette .it .enter{display:none}
+ .palette .it{padding:12px}
+}
+/* ===== start: task mode ===== */
+.task-top{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;background:var(--bg);border-bottom:1px solid var(--line)}
+.task-top .wrap{display:flex;align-items:center;gap:20px;height:68px}
+.task-ctx{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;flex:1;min-width:0}
+.task-ctx .avatar{width:28px;height:28px;font-size:10px}
+.task-ctx span.t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.task-ctx span.t em{font-style:normal;color:var(--muted);font-weight:400}
+.filled{display:flex;align-items:center;gap:4px;font-size:13px;font-weight:500}
+.filled i{width:18px;height:4px;border-radius:4px;background:var(--line)}.filled i.on{background:var(--fg)}
+.filled span{margin-left:10px;white-space:nowrap}
+.task-right{flex:1;display:flex;justify-content:flex-end}
+@media (max-width:760px){.filled span{display:none}.task-ctx em{display:none}}
+.task{display:grid;grid-template-columns:1fr 460px;gap:72px;padding:56px 0 128px}
+@media (max-width:1100px){.task{grid-template-columns:1fr}}
+.task .q{font-size:clamp(34px,4vw,48px);line-height:1.05;letter-spacing:-.035em;font-weight:700;margin-top:10px}
+.task .sub{color:var(--muted);font-size:18px;margin-top:14px;max-width:56ch}
+.inputs{display:flex;flex-direction:column;gap:22px;margin-top:36px}
+.inputs label{display:block;font-weight:600;font-size:14px;margin-bottom:8px}
+.inputs textarea,.inputs input{width:100%;border:1px solid var(--line);border-radius:14px;padding:15px 18px;font-size:16px;line-height:1.5;background:var(--bg);resize:vertical;transition:border-color .15s}
+.inputs textarea:focus,.inputs input:focus{outline:none;border-color:var(--fg)}
+.hint{font-size:13px;color:var(--muted);margin-top:8px}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px}@media (max-width:640px){.pair{grid-template-columns:1fr}}
+.task-foot{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:40px}
+.task-foot .r{display:flex;gap:18px;align-items:center}
+.entry{max-width:960px;margin:0 auto;padding:104px 0 128px;text-align:center}
+.entry .q{font-size:clamp(40px,5vw,60px);line-height:1.02;letter-spacing:-.04em;font-weight:700}
+.entry .sub{margin:18px auto 0;color:var(--muted);font-size:19px;max-width:56ch}
+.paths{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px;text-align:left}
+.path{border:1px solid var(--line);border-radius:20px;padding:28px;min-height:216px;display:flex;flex-direction:column;transition:border-color .15s,box-shadow .2s,transform .2s;background:var(--bg)}
+.path:hover,.path:focus-visible{border-color:var(--fg);box-shadow:var(--shadow);transform:translateY(-2px)}
+.path .g{width:40px;height:40px;border-radius:999px;background:var(--surface);display:grid;place-items:center;font-size:17px;transition:background .15s,color .15s}
+.path:hover .g{background:var(--fg);color:var(--bg)}
+.path b{display:block;margin-top:auto;font-size:22px;letter-spacing:-.02em;font-weight:600;padding-top:28px}
+.path p{color:var(--muted);font-size:15px;margin-top:6px}
+.side-links{display:flex;gap:20px;justify-content:center;align-items:center;margin-top:28px;font-size:14px;flex-wrap:wrap;color:var(--muted)}
+.side-links button{font-weight:600;color:var(--fg);display:inline-flex;align-items:center;gap:4px}
+.side-links button::after{content:"→";transition:transform var(--t2) var(--ease)}
+.pickup{margin-top:72px;text-align:left}
+.pickup .r{display:flex;align-items:center;gap:16px;border-top:1px solid var(--line);padding:16px 0;width:100%}
+.pickup .r .n{flex:1;min-width:0}.pickup .r .n b{font-weight:600}.pickup .r .n em{font-style:normal;color:var(--muted);margin-left:8px}
+.pickup .r small{color:var(--faint);font-size:12px}
+@media (max-width:760px){.paths{grid-template-columns:1fr}.path{min-height:0}.pickup .filled{display:none}}
+.pick-list{margin-top:32px}
+.pick{display:flex;align-items:center;gap:14px;width:100%;padding:14px 12px;border-radius:12px;transition:background .15s}
+.pick:hover{background:var(--surface)}
+.pick .avatar{background:var(--surface);color:var(--fg)}
+.pick div{flex:1;min-width:0}.pick b{font-weight:600}.pick small{display:block;color:var(--muted);font-size:13px}
+.newrow{display:flex;align-items:center;gap:14px;padding:10px 12px;border:1px dashed var(--line);border-radius:12px;margin-top:8px}
+.newrow input{flex:1;border:0;background:none;font-weight:600;font-size:16px;outline:none;min-width:0}
+.capgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:28px}
+@media (max-width:640px){.capgrid{grid-template-columns:repeat(2,1fr)}}
+.capbtn{position:relative}
+.capbtn .card{transition:box-shadow .15s,transform .15s}
+.capbtn:hover .card{transform:translateY(-2px)}
+.capbtn[aria-pressed="true"] .card{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--fg)}
+.capbtn .ck{position:absolute;top:10px;right:10px;width:28px;height:28px;border-radius:999px;background:var(--fg);color:var(--bg);display:none;place-items:center;font-size:13px;z-index:2}
+.capbtn[aria-pressed="true"] .ck{display:grid}
+.capbtn .m{display:flex;justify-content:space-between;gap:8px;margin-top:10px;font-size:13px;font-weight:600}.capbtn .m small{color:var(--muted);font-weight:500}
+.fmt{display:flex;gap:16px;align-items:center;width:100%;border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-top:10px;transition:border-color .15s}
+.fmt:hover{border-color:var(--faint)}
+.fmt[aria-checked="true"]{border-color:var(--fg);box-shadow:inset 0 0 0 1px var(--fg)}
+.fmt .radio{width:20px;height:20px;border-radius:999px;border:1.5px solid var(--line);flex:none}
+.fmt[aria-checked="true"] .radio{border:6px solid var(--fg)}
+.fmt div{flex:1}.fmt b{font-size:18px;font-weight:600}.fmt small{color:var(--muted);margin-left:10px;font-weight:500}.fmt p{color:var(--muted);font-size:14px}
+.prow{display:grid;grid-template-columns:220px 1fr auto;gap:20px;align-items:center;border-top:1px solid var(--line);padding:16px 0}
+.prow b{font-size:17px;font-weight:600}.prow small{display:block;color:var(--muted);font-size:12.5px;font-weight:500}.prow p{color:var(--muted);font-size:14px;margin-top:2px}
+.prow.skip .t{opacity:.5}
+@media (max-width:760px){.prow{grid-template-columns:1fr}}
+.bp{position:sticky;top:96px;align-self:start;border:1px solid var(--line);border-radius:24px;padding:24px;box-shadow:var(--shadow);background:var(--bg)}
+.bp .hd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:0 4px 14px}
+.bp .count{font-size:12px;color:var(--muted);font-weight:500;white-space:nowrap}
+.bp .f{display:block;width:100%;border-top:1px solid var(--line);padding:12px 4px;text-align:left;border-radius:0;transition:background .15s}
+.bp .f:hover{background:var(--surface);border-radius:12px;padding-left:12px;padding-right:12px;margin:0 -8px;width:calc(100% + 16px)}
+.bp .f.cur{background:var(--surface);border-radius:12px;border-top-color:transparent;padding:12px;margin:0 -8px;width:calc(100% + 16px)}
+.bp .f.cur+.f{border-top-color:transparent}
+.bp .f h5{margin:0 0 3px;font-size:12px;color:var(--faint);font-weight:500;display:flex;justify-content:space-between}
+.bp .f p{font-size:14px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.bp .f .add{font-size:13px;font-weight:600;color:var(--muted);transition:color var(--t2) var(--ease)}
+.bp .f .add::before{content:"+ "}
+.bp .minis{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.bp .minis .card{width:30px;flex:none;border-radius:4px;padding:3px}.bp .minis .card .lbl,.bp .minis .card .tt{display:none}
+.bp .note{font-size:12px;color:var(--faint);padding:12px 4px 0}
+.sample{background:var(--surface);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:500;display:inline-block}
+.doc{max-width:960px;margin:0 auto}
+.onepage{border:1px solid var(--line);border-radius:20px;margin-top:36px}
+.onepage>div{display:grid;grid-template-columns:200px 1fr auto;gap:24px;padding:18px 22px;border-top:1px solid var(--line);align-items:baseline}
+.onepage>div:first-child{border-top:0}
+.onepage span{font-size:13px;color:var(--muted);font-weight:600}.onepage p{font-size:17px}.onepage p.empty{color:var(--faint)}
+.edit{display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:999px;border:1px solid var(--line);font-size:12.5px;font-weight:600;white-space:nowrap;transition:background-color var(--t2) var(--ease),border-color var(--t2) var(--ease),transform var(--t3) var(--spring)}
+.edit:active{transform:scale(.95);transition-duration:var(--t1)}
+@media (max-width:640px){.onepage>div{grid-template-columns:1fr auto}.onepage span{grid-column:1/-1}}
+.bp-detail{display:grid;grid-template-columns:300px 1fr;gap:40px;margin-top:40px}
+.bp-detail .hd{display:flex;justify-content:space-between;margin-bottom:12px}
+.bp-pats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media (max-width:860px){.bp-detail{grid-template-columns:1fr}.bp-pats{grid-template-columns:1fr 1fr}}
+.toast{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:12px 18px;border-radius:999px;font-size:14px;font-weight:500;z-index:90;box-shadow:var(--shadow);animation:pop .25s ease;max-width:calc(100vw - 40px)}
+footer{border-top:1px solid var(--line);padding:28px 0 calc(28px + env(safe-area-inset-bottom,0px));font-size:13px;color:var(--muted)}
+footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+
+/* =====================================================================
+   Interaction system — one set of motion tokens for every control.
+   Hover only where a pointer can hover; press feedback everywhere;
+   focus rings that animate in; all of it off under reduced motion.
+   ===================================================================== */
+:root{--ease:cubic-bezier(.22,1,.36,1);--spring:cubic-bezier(.34,1.45,.64,1);--t1:120ms;--t2:220ms;--t3:360ms;--lift:0 2px 6px rgba(0,0,0,.06),0 18px 44px rgba(0,0,0,.12)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--lift:0 2px 6px rgba(0,0,0,.5),0 18px 44px rgba(0,0,0,.6)}}
+:root[data-theme="dark"]{--lift:0 2px 6px rgba(0,0,0,.5),0 18px 44px rgba(0,0,0,.6)}
+
+/* focus: a ring that settles into place */
+:focus{outline:none}
+:focus-visible{outline:2px solid var(--fg);outline-offset:3px;animation:ringIn var(--t2) var(--ease)}
+@keyframes ringIn{from{outline-offset:7px;outline-color:transparent}}
+.inputs textarea:focus-visible,.inputs input:focus-visible,.newrow input:focus-visible,.palette input:focus-visible{outline:none;animation:none}
+.inputs textarea:focus,.inputs input:focus{border-color:var(--fg);box-shadow:0 0 0 4px color-mix(in srgb,var(--fg) 10%,transparent)}
+.inputs textarea,.inputs input{transition:border-color var(--t2) var(--ease),box-shadow var(--t2) var(--ease)}
+.newrow:focus-within{border-style:solid;border-color:var(--fg)}
+
+/* shared transitions */
+.btn,.icon-btn,.chip,.seg button,.tab,.pill,.path,.pick,.fmt,.bp .f,.palette .it,.family-strip button,.useref,.rail button,.rows .r,.pickup .r,.modal .close,.capbtn,.fam,.tray .cards button,.newrow{transition:background-color var(--t2) var(--ease),border-color var(--t2) var(--ease),color var(--t2) var(--ease),box-shadow var(--t3) var(--ease),opacity var(--t2) var(--ease),transform var(--t3) var(--spring)}
+.sec-card .stage,.proj .stage,.tool .stage,.tool .lstage,.fam .card,.tray .cards .card,.capbtn .card,.family-strip .card{transition:transform var(--t3) var(--spring),box-shadow var(--t3) var(--ease)}
+.row svg,.r>svg,.pill svg,.useref>svg,.next a .h3,.short a::after{transition:transform var(--t2) var(--ease)}
+
+/* text links: an underline that draws in */
+
+/* nav: underline grows from the centre */
+.nav a::after{content:"";position:absolute;left:50%;bottom:-4px;width:22px;height:2px;margin-left:-11px;background:var(--fg);border-radius:2px;transform:scaleX(0);transition:transform var(--t2) var(--ease)}
+.nav a[aria-current="page"]::after{transform:scaleX(1)}
+
+@media (hover:hover){
+ .short a:hover::after{transform:translate(2px,-2px);color:var(--fg)}
+ .btn-primary:hover{opacity:.84}
+ .btn-ghost:hover{background:var(--surface);border-color:var(--faint)}
+ .icon-btn:hover{background:var(--surface);border-color:var(--faint)}
+ button.chip:hover,a.chip:hover{background:var(--surface);border-color:var(--faint)}
+ .seg button:not([aria-pressed="true"]):hover,.tab:not([aria-pressed="true"]):hover{color:var(--fg)}
+ .pill:hover{background:color-mix(in srgb,var(--surface) 70%,var(--line))}
+ .pill:hover svg,.row:hover svg,.sec-card:hover .row svg,.tool:hover .row svg,.r:hover>svg,.useref:hover>svg{transform:translateX(3px)}
+ .sec-card:hover .stage,.tool:hover .stage,.tool:hover .lstage,.proj:hover .stage{transform:translateY(-4px);box-shadow:var(--lift)}
+ .fam:not([aria-pressed="true"]):hover .card{transform:translateY(-4px);box-shadow:var(--lift)}
+ .tray .cards button:hover .card,.capbtn:hover .card{transform:translateY(-6px) rotate(-.6deg);box-shadow:var(--lift)}
+ .path:hover{border-color:var(--fg);box-shadow:var(--lift);transform:translateY(-3px)}
+ .pick:hover,.pickup .r:hover,.rail button:hover{background:var(--surface)}
+ .fmt:hover{border-color:var(--faint);box-shadow:var(--shadow)}
+ .family-strip button:not([aria-current="true"]):hover{background:color-mix(in srgb,var(--surface) 70%,var(--line))}
+ .family-strip button:hover .card{transform:translateY(-2px)}
+ .useref:hover{background:color-mix(in srgb,var(--surface) 70%,var(--line))}
+ .modal .close:hover{background:var(--surface);border-color:var(--faint)}
+ .next a:hover .h3{transform:translateX(4px)}
+ .next a:first-child:hover .h3{transform:translateX(-4px)}
+ .inputs textarea:hover:not(:focus),.inputs input:hover:not(:focus){border-color:var(--faint)}
+}
+
+/* press: everything gives a little under the finger, then springs back */
+.btn:active,.icon-btn:active,.chip:active,.seg button:active,.tab:active,.modal .close:active{transform:scale(.96);transition-duration:var(--t1)}
+.btn-lg:active{transform:scale(.97)}
+.pill:active,.path:active,.fmt:active{transform:scale(.985);transition-duration:var(--t1)}
+.pick:active,.pickup .r:active,.palette .it:active,.rail button:active,.rows .r:active,.useref:active,.bp .f:active,.family-strip button:active{transform:scale(.99);transition-duration:var(--t1)}
+.sec-card a:active .stage,.tool a:active .stage,.proj:active .stage{transform:translateY(-1px) scale(.99);transition-duration:var(--t1)}
+.tray .cards button:active .card,.capbtn:active .card,.fam:active .card{transform:scale(.97);transition-duration:var(--t1)}
+.btn[disabled]:active,.btn[disabled]:hover{transform:none;background:var(--bg);opacity:1}
+
+/* selection moments */
+.capbtn .ck{transform:scale(0);transition:transform var(--t3) var(--spring)}
+.capbtn[aria-pressed="true"] .ck{display:grid;transform:scale(1)}
+.capbtn.just[aria-pressed="true"] .ck{animation:pop var(--t3) var(--spring)}
+@keyframes pop{0%{transform:scale(0)}100%{transform:scale(1)}}
+.fmt .radio{transition:border-width var(--t3) var(--spring),border-color var(--t2) var(--ease)}
+.seg button[aria-pressed="true"]{animation:segIn var(--t3) var(--spring)}
+@keyframes segIn{from{transform:scale(.92)}}
+.fam[aria-pressed="true"] .card{transition:transform var(--t3) var(--spring),box-shadow var(--t3) var(--ease)}
+[data-theme-toggle] svg{animation:spinIn var(--t3) var(--spring)}
+@keyframes spinIn{from{transform:rotate(-90deg) scale(.6);opacity:0}}
+
+/* arrivals: views, sheets, palette, toast */
+#app[data-anim] main{animation:viewIn var(--t3) var(--ease) both}
+#app[data-anim] .grid3>*,#app[data-anim] .pgrid>*,#app[data-anim] .sections>*,#app[data-anim] .tools>*,#app[data-anim] .paths>*{animation:viewIn 480ms var(--ease) both}
+#app[data-anim] :is(.grid3,.pgrid,.sections,.tools,.paths)>*:nth-child(2){animation-delay:50ms}
+#app[data-anim] :is(.grid3,.pgrid,.sections,.tools,.paths)>*:nth-child(3){animation-delay:100ms}
+#app[data-anim] :is(.grid3,.pgrid)>*:nth-child(4){animation-delay:150ms}
+#app[data-anim] :is(.grid3,.pgrid)>*:nth-child(5){animation-delay:200ms}
+#app[data-anim] :is(.grid3,.pgrid)>*:nth-child(n+6){animation-delay:240ms}
+@keyframes viewIn{from{opacity:0;transform:translateY(10px)}}
+.task>div:first-child{animation:none}
+#app[data-step] .task>div:first-child{animation:viewIn var(--t3) var(--ease) both}
+.modal{animation:sheetIn 420ms var(--spring)}
+@keyframes sheetIn{from{opacity:0;transform:translateY(24px) scale(.97)}}
+.palette{animation:paletteIn 280ms var(--spring)}
+@keyframes paletteIn{from{opacity:0;transform:translateY(-8px) scale(.97)}}
+.scrim{animation:fade var(--t2) var(--ease)}
+.toast{animation:toastIn 420ms var(--spring)}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,16px) scale(.96)}}
+
+/* hover without underlines: links reveal an arrow or dim; rows get a soft plate; card content zooms inside its frame */
+.link{display:inline-flex;align-items:center;gap:0}
+.link::after{content:"→";display:inline-block;width:0;margin-left:0;opacity:0;transform:translateX(-6px);transition:opacity var(--t2) var(--ease),transform var(--t2) var(--ease),width var(--t2) var(--ease),margin var(--t2) var(--ease)}
+.crumb a,.trace a,.trace button,.pgrid .name,.cap-cards .chip{transition:color var(--t2) var(--ease),opacity var(--t2) var(--ease),background-color var(--t2) var(--ease)}
+.rows{isolation:isolate}
+.rows .r{position:relative;transition:border-color var(--t2) var(--ease),transform var(--t3) var(--spring)}
+.rows .r::before{content:"";position:absolute;inset:-1px -14px;border-radius:14px;background:var(--surface);opacity:0;transform:scale(.985);transition:opacity var(--t2) var(--ease),transform var(--t3) var(--spring);z-index:-1}
+div.r::before{display:none}
+.sec-card .stage>*,.tool .stage>*,.proj .stage>*:not(.badge){transition:transform 700ms var(--ease)}
+.nav a{transition:color var(--t2) var(--ease)}
+@media (hover:hover){
+ .link:hover::after{opacity:1;transform:none;width:1em;margin-left:5px}
+ .trace a:hover,.trace button:hover,.pgrid .name:hover{opacity:.6}
+ .crumb a:hover{color:var(--fg)}
+ .rows a.r:hover::before,.rows button.r:hover::before{opacity:1;transform:none}
+ .rows a.r:hover,.rows button.r:hover,.rows a.r:hover+.r,.rows button.r:hover+.r{border-color:transparent}
+ .sec-card:hover .stage>*,.tool:hover .stage>*,.proj:hover .stage>*:not(.badge){transform:scale(1.035)}
+ .sec-card:hover .stage>.fan,.tool:hover .stage>.fan{transform:scale(1.05) translateY(-4px)}
+ .side-links button:hover::after{transform:translateX(3px)}
+ .bp .f:hover .add{color:var(--fg)}
+ .edit:hover{background:var(--surface);border-color:var(--faint)}
+}
+/* status: fill level tells the stage (empty → half → full), no colour needed */
+.badge{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px 0 7px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap;line-height:1;background:var(--bg);color:var(--fg);box-shadow:inset 0 0 0 1px var(--line)}
+.badge svg,.st-ico svg{flex:none}
+.badge.s-shipped{background:var(--fg);color:var(--bg);box-shadow:none}
+.badge.s-shipped .ck{stroke:var(--fg)}
+.badge.s-scoping{color:var(--muted);box-shadow:none;border:1px dashed var(--faint);padding:0 9px 0 6px}
+.st-ico{display:inline-grid;place-items:center;width:16px;height:16px;color:var(--fg);flex:none}
+.st-ico.s-scoping{color:var(--muted)}
+.st-ico.s-shipped .ck{stroke:var(--bg)}
+.proj-meta{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);font-weight:500}
+.proj .stage .badge{position:absolute;top:12px;left:12px;z-index:2;box-shadow:inset 0 0 0 1px var(--line),0 1px 2px rgba(0,0,0,.06)}
+.proj .stage .badge.s-shipped{box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.proj .stage .badge.s-scoping{background:var(--bg)}
+.tab .st-ico{width:14px;height:14px}
+
+@media (prefers-reduced-motion:reduce){
+ *,*::before,*::after{animation-duration:1ms!important;animation-delay:0ms!important;transition-duration:1ms!important}
+ .sec-card:hover .stage,.tool:hover .stage,.tool:hover .lstage,.proj:hover .stage,.path:hover,.fam:hover .card,.tray .cards button:hover .card,.capbtn:hover .card,.sec-card:hover .stage>*,.tool:hover .stage>*,.proj:hover .stage>*{transform:none}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="layer"></div>
+<p id="soon-note" class="vh">Not available yet.</p>
+<script>
+const $=(s,r=document)=>r.querySelector(s);const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+/* ===== Pattern library: demos, capabilities and patterns, taken as-is from the UI Patterns library ===== */
+const LIBCSS=/*__LIB_CSS__*/'';
+const LIB=(()=>{ /*__LIB_JS__*/ ; return {CAPS,P,D,SURF}; })();
+const nice=n=>n.replace(/"([^"]+)"/g,'“$1”');
+const norm=s=>s.replace(/[“”"]/g,'').toLowerCase().trim();
+const PATS=LIB.P.map(p=>({...p,name:nice(p.name)}));const PB=Object.fromEntries(PATS.map(p=>[p.id,p]));
+const PID={};PATS.forEach(p=>PID[norm(p.name)]=p.id);const pid=n=>PID[norm(n)];
+const CAPS=LIB.CAPS;const CB=Object.fromEntries(CAPS.map(c=>[c.id,c]));const CAPID={};CAPS.forEach(c=>CAPID[c.name.toLowerCase()]=c.id);
+const SURF={chat:'Chat',embedded:'Embedded',both:'Chat & embedded'};
+
+/* ===== AI Cards ===== */
+const FAMILIES=[
+ {id:'understand',name:'Understand the world',front:'AI Sees, Understands & Interprets',about:'AI can sense, perceive and make sense of the world and data around us.',
+  cards:[['see-recognize','See & recognize','Detect objects, people, scenes, or environmental changes.'],['hear-understand','Hear & understand','Recognize speech, environmental sounds, or audio patterns.'],['combine-inputs','Combine multiple inputs','Integrate visual, audio, and text data for richer context.'],['read-interpret','Read & interpret','Extract meaning from text, documents, or structured data.']]},
+ {id:'communicate',name:'Communicate & connect',front:'AI Writes, Summarizes & Communicates',about:'AI helps turn ideas into clear, meaningful communication across people and systems.',
+  cards:[['explain-generate','Explain & generate text','Summarize, revise, or generate insights.'],['speak-naturally','Speak naturally','Convert text to lifelike voice output.'],['converse-context','Converse in context','Maintain dialogue, remember interactions, and answer questions.'],['translate-adapt','Translate & adapt style','Switch languages, adjust tone, adapt messages.']]},
+ {id:'think',name:'Think & reason',front:'AI Analyzes & Generates Insight',about:'AI helps us understand information, find patterns, and make smarter decisions.',
+  cards:[['retrieve-knowledge','Retrieve knowledge','Find relevant information.'],['plan-solve','Plan & solve problems','Suggest solutions or action sequences.'],['predict-outcomes','Predict outcomes','Forecast trends, risks, or potential results.'],['generate-ideas','Generate creative ideas','Propose new concepts or strategies.']]},
+ {id:'action',name:'Take action',front:'AI Acts, Automates & Prepares',about:'AI can act autonomously, execute tasks, and integrate workflows.',
+  cards:[['trigger-actions','Trigger actions','Initiate actions across systems and services.'],['monitor-adjust','Monitor & adjust actions','Observe execution and adapt.'],['automate-workflows','Automate workflows','Orchestrate multi-step workflows.'],['integrate-systems','Integrate systems & APIs','Interact with external systems.']]},
+ {id:'explain',name:'Explain & guide',front:'AI Reflects, Clarifies & Coaches',about:'AI clarifies, teaches, and provides context for its actions.',
+  cards:[['explainability','Explainability','Describe how and why a result was generated.'],['guidance-coaching','Guidance & coaching','Suggest next steps or improvements.'],['transparency','Transparency','Search for information to help validate decisions.'],['critical-thinking','Critical thinking support','Challenge assumptions and highlight blind spots.']]},
+ {id:'collab',name:'Collaborate',front:'AI Partners, Enhances Human Creativity & Decision-Making',about:'AI as a partner, not to replace humans but to enhance creativity and strategy.',
+  cards:[['co-creation','Co-creation tools','Brainstorm or design alongside users.'],['decision-support','Decision support','Visualize data for human interpretation.'],['adaptive-assistance','Adaptive assistance','Abstract technical complexity, so people can do tasks in natural language instead of code.'],['ethical-awareness','Ethical awareness','Help users understand trade-offs and risks.']]}];
+const CARDS={};FAMILIES.forEach(f=>f.cards.forEach(([id,name,desc],i)=>CARDS[id]={id,name,desc,fam:f.id,famName:f.name,i}));
+const FAMCLS={understand:'f-understand',communicate:'f-communicate',think:'f-think',action:'f-action',explain:'f-explain',collab:'f-collab'};
+// system map: AI Card -> library capabilities -> patterns
+const MAPN={
+ 'see-recognize':[['See'],['Object highlights','Suggested tags','Confidence signal']],'hear-understand':[['Hear & speak'],['Live transcript','Translation toggle']],
+ 'combine-inputs':[['See','Hear & speak','Converse'],['Mixed input','Smart fill','Live transcript']],'read-interpret':[['Extract','Classify & tag','Summarize'],['Smart fill','Suggested tags','Summary card']],
+ 'explain-generate':[['Generate','Summarize'],['Streaming response','Summary card','Regenerate & versions']],'speak-naturally':[['Hear & speak'],['Read-aloud','Live transcript']],
+ 'converse-context':[['Converse'],['Side-panel assistant','Clarifying question','Starter prompts']],'translate-adapt':[['Rewrite & translate'],['Translation toggle','Selection actions','Review changes']],
+ 'retrieve-knowledge':[['Search & answer'],['Answer above results','Citations']],'plan-solve':[['Act on your behalf','Converse'],['Plan & progress','Review plan before running','Clarifying question']],
+ 'predict-outcomes':[['Predict & detect'],['Insight callout','Ongoing monitoring','Confidence signal','Why this? explanation']],'generate-ideas':[['Generate'],['Multiple options','Regenerate & versions']],
+ 'trigger-actions':[['Act on your behalf'],['Approval step','Undo AI action']],'monitor-adjust':[['Act on your behalf','Predict & detect'],['Ongoing monitoring','Plan & progress','Insight callout']],
+ 'automate-workflows':[['Act on your behalf'],['Review plan before running','Plan & progress','Approval step']],'integrate-systems':[['Act on your behalf'],['Review plan before running','Plan & progress','Approval step']],
+ 'explainability':[[],['Why this? explanation','Citations']],'guidance-coaching':[['Recommend'],['Proactive suggestion','Because you… row']],
+ 'transparency':[['Search & answer'],['Citations','Stated assumptions','Confidence signal']],'critical-thinking':[['Converse','Search & answer'],['Stated assumptions','Clarifying question']],
+ 'co-creation':[['Generate','Rewrite & translate'],['Inline suggestion','Selection actions','Multiple options']],'decision-support':[['Predict & detect','Recommend'],['Insight callout','Multiple options','Why this? explanation']],
+ 'adaptive-assistance':[['Converse'],['Side-panel assistant','Mixed input','Starter prompts']],'ethical-awareness':[[],['Approval step','Multiple options','Stated assumptions']]};
+const MAP={};Object.entries(MAPN).forEach(([c,[caps,pats]])=>MAP[c]={caps:caps.map(n=>CAPID[n.toLowerCase()]).filter(Boolean),pats:pats.map(pid).filter(Boolean)});
+const cardsForCap=cap=>Object.keys(MAP).filter(c=>MAP[c].caps.includes(cap));
+const cardsForPat=p=>Object.keys(MAP).filter(c=>MAP[c].pats.includes(p));
+const DETAIL={
+ 'predict-outcomes':{needs:['Historical data','A clear outcome to predict','Someone to act on it'],limits:'Predictions are probabilities, not certainties. Quality depends on past data — and the past doesn’t always repeat.',pairs:['explainability','trigger-actions','decision-support']},
+ 'explain-generate':{needs:['The source content','A clear audience','A person who reviews'],limits:'Summaries can drop the detail that matters most. Keep the source one click away.',pairs:['read-interpret','explainability','translate-adapt']},
+ 'read-interpret':{needs:['Documents in a readable format','Known fields or categories'],limits:'Handwriting, scans and unusual layouts lower accuracy. Show what was extracted and let people correct it.',pairs:['explain-generate','transparency','trigger-actions']},
+ 'trigger-actions':{needs:['Access to the systems involved','A clear approval rule'],limits:'Anything hard to undo needs a person to approve it first, and a way back.',pairs:['predict-outcomes','ethical-awareness','automate-workflows']},
+ 'retrieve-knowledge':{needs:['A trusted source of truth','Content kept up to date'],limits:'Answers are only as good as the sources. Always show where each answer came from.',pairs:['transparency','explain-generate','guidance-coaching']}};
+
+/* ===== Projects (sample data) ===== */
+let PROJECTS=[
+ {slug:'claims-assistant',status:'progress',client:'Northwind Insurance',industry:'Insurance',type:'Prototype',year:'2026',name:'Claims assistant',line:'A first-pass summary of each simple claim, evidence attached. The adjuster approves or sends it back.',vis:'summary',now:'Prototype in client review',next:'Client review, Nov 12. Updated by the team, Oct 27.',
+  problem:'Adjusters spend most of the day on simple claims. Leadership wants to use AI and can’t say where it would help first.',built:'A first-pass summary for each simple claim, with the evidence attached and the adjuster always making the call.',users:'Claims adjusters',metric:'Time saved per claim',cards:['explain-generate','read-interpret','trigger-actions'],patterns:['tldr','cite','approve'],team:'2 designers',time:'Sep 2026 – now'},
+ {slug:'patient-intake',status:'progress',client:'Harbor Health',industry:'Healthcare',type:'Demo',year:'2026',name:'Patient intake copilot',line:'Reads what the patient already wrote and fills the intake form for the nurse to check.',vis:'fill',now:'Workshop with the nursing team, Nov 5',next:'Agree on which fields the nurse must confirm.',
+  problem:'Nurses retype what patients already wrote in their messages and forms.',built:'An intake form that fills itself from the patient’s own words, with every field marked for the nurse to confirm.',users:'Intake nurses',metric:'Minutes per intake',cards:['read-interpret','see-recognize'],patterns:['autofill','conf'],team:'1 designer, 1 engineer',time:'Aug 2026 – now'},
+ {slug:'shipment-triage',status:'shipped',client:'Meridian Logistics',industry:'Logistics',type:'Case study',year:'2026',name:'Shipment exception triage',line:'Flags shipments that will miss their window and drafts the message to the carrier.',vis:'callout',outcome:'Exceptions flagged before the window closes.',
+  problem:'Dispatchers found late shipments after the window had closed, then wrote every carrier message by hand.',built:'A daily exception list with the cause of each delay, and carrier messages drafted and sent only after a dispatcher approves.',cards:['predict-outcomes','trigger-actions','explain-generate'],patterns:['anomaly','approve','regen'],team:'2 designers, 1 engineer',time:'Mar – Jun 2026'},
+ {slug:'catalogue-enrichment',status:'progress',client:'Kestrel Retail',industry:'Retail',type:'Demo',year:'2026',name:'Catalogue enrichment',line:'Writes missing product descriptions from the photo and spec sheet, in the brand’s voice.',vis:'desc',now:'Choosing capabilities with merchandising',next:'Pick the first product category to pilot.',
+  problem:'Thousands of products go live without a description.',built:'Descriptions drafted from the photo and spec sheet, in the brand’s voice, reviewed before publishing.',cards:['see-recognize','explain-generate'],patterns:['stream','diff'],team:'1 designer',time:'Oct 2026 – now'},
+ {slug:'research-synthesis',status:'shipped',client:'Loka',industry:'Internal',type:'Product',year:'2025',name:'Research synthesis tool',line:'Interview notes in, themes with quotes out. Every theme traceable to its notes.',vis:'themes',outcome:'Synthesis down to a day. Used on every study since.',
+  problem:'Synthesis took a week per study and the evidence trail lived in one designer’s head.',built:'An internal tool: upload notes, get themes, click a theme to see its quotes.',cards:['read-interpret','explainability','retrieve-knowledge'],patterns:['tags','cite','tldr'],team:'Design squad',time:'2025'},
+ {slug:'advisor-briefing',status:'scoping',client:'Alder Bank',industry:'Banking',type:'Blueprint',year:'2026',name:'Advisor briefing',line:'One page before each client meeting, pulled from six systems.',vis:'brief',now:'Blueprint, 2 of 7 sections',next:'Finish the scope with the advisory team.',
+  problem:'Advisors prepare for each meeting by opening six systems.',built:'One page per meeting with what changed and what to raise.',cards:['retrieve-knowledge','predict-outcomes','guidance-coaching'],patterns:['answer','nudge'],team:'1 designer',time:'Oct 2026 – now'},
+ {slug:'contract-review',status:'shipped',client:'Orion Legal',industry:'Legal',type:'Prototype',year:'2026',name:'Contract review',line:'Pulls the clauses that matter and shows where each one came from.',vis:'clauses',outcome:'Every clause traceable to its source.',
+  problem:'Lawyers skim long agreements for the same handful of clauses.',built:'The clauses that matter, extracted and linked to their exact place in the document.',cards:['read-interpret','transparency'],patterns:['cite','tldr'],team:'1 designer, 1 engineer',time:'May – Jul 2026'},
+ {slug:'digital-ai-cards',status:'shipped',client:'Loka',industry:'Internal',type:'Product',year:'2026',name:'Digital AI Cards',line:'The AI Cards deck as a browser tool for calls and remote sessions.',vis:'cards',outcome:'Used in remote client sessions.',
+  problem:'The printed deck didn’t work in remote workshops.',built:'The full deck in the browser, with families, filters and a shareable selection.',cards:['guidance-coaching'],patterns:['starters'],team:'Design squad',time:'2026'}];
+const STATUS={progress:'In progress',scoping:'Scoping',shipped:'Shipped'};
+const CLIENTS=[
+ {id:'NI',name:'Northwind Insurance',meta:'Insurance, proposal',topic:'Claims handling',last:'Last meeting Oct 7',notes:'Adjusters spend most of the day on simple claims. Leadership wants to use AI and can’t say where it would help first. Two pilots ran last year with internal users, neither in production.',users:'Claims adjusters',metric:'Time saved per claim'},
+ {id:'HH',name:'Harbor Health',meta:'Healthcare, engagement',topic:'Patient intake',last:'Last meeting Oct 13',notes:'Nurses retype what patients already wrote in their messages and forms.',users:'Intake nurses',metric:'Minutes per intake'},
+ {id:'ML',name:'Meridian Logistics',meta:'Logistics, delivered',topic:'',last:'Last meeting Jun 20',notes:'',users:'',metric:''},
+ {id:'AB',name:'Alder Bank',meta:'Banking, scoping',topic:'Advisor briefing',last:'Last meeting Oct 15',notes:'Advisors prepare for each meeting by opening six systems.',users:'Financial advisors',metric:'Prep time per meeting'},
+ {id:'KR',name:'Kestrel Retail',meta:'Retail, lead',topic:'',last:'Last meeting Oct 1',notes:'',users:'',metric:''}];
+const FORMATS=[{slug:'genai-workshop',name:'GenAI Workshop',dur:'2h30 – 1 day',when:'The client wants AI but hasn’t defined the problem.'},{slug:'design-sprint',name:'Design Sprint',dur:'4 weeks',when:'The problem is clear and needs a tested concept.'},{slug:'mvp-sprint',name:'MVP Sprint',dur:'6–8 weeks',when:'The concept is agreed and needs a working first version.'}];
+
+/* ===== helpers ===== */
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const store={get(k,d){try{const v=localStorage.getItem('builders:'+k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem('builders:'+k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem('builders:'+k)}catch(e){}}};
+PROJECTS=PROJECTS.concat(store.get('added2',[]));
+function toast(msg){$$('.toast').forEach(t=>t.remove());const t=document.createElement('div');t.className='toast';t.setAttribute('role','status');t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2800)}
+const icon={search:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11l3.5 3.5" stroke-linecap="round"/></svg>',
+ close:'<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M3.5 3.5l9 9M12.5 3.5l-9 9"/></svg>',
+ sun:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="3"/><path d="M8 1.5v1.5M8 13v1.5M1.5 8H3M13 8h1.5M3.4 3.4l1 1M11.6 11.6l1 1M3.4 12.6l1-1M11.6 4.4l1-1"/></svg>',
+ moon:'<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M13.5 9.6A5.6 5.6 0 0 1 6.4 2.5a5.6 5.6 0 1 0 7.1 7.1z"/></svg>',
+ arrow:'<svg viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4"/></svg>'};
+/* real card values from Figma (fronts per family, backs per card) */
+const u=n=>(n/2.4).toFixed(2)+'cqw';
+const FRONT={understand:{bg:'#e0ecb3',glow:'#93ae5f',g:[38,-80,267,224],title:'AI Sees, Understands<br>& Interprets',tw:167,line:[19,112,1],ds:'AI can sense, perceive, and make sense of the world and data around us.',dy:114,dw:167,label:'Understand the world',lx:19,ly:17},
+ communicate:{bg:'#e2d8ff',glow:'#9991ff',g:[-78,117,226,255],title:'AI Writes, Summarizes & Communicates',tw:167,line:[25,110,.5],ds:'AI helps transform ideas into clear, meaningful communication across people and systems.',dy:119,dw:180,label:'Communicate & connect',lx:22,ly:16},
+ think:{bg:'#f6e197',glow:'#e5b001',g:[-71,39,261,253],title:'AI Analyzes<br>& Generates Insight',tw:189,line:[25,92,.5],ds:'AI helps us understand information, find patterns, and make smarter decisions.',dy:102,dw:180,label:'Think & reason',lx:20,ly:16},
+ action:{bg:'#fec298',glow:'#ff703c',g:[-94,48,269,255],title:'AI Acts, Automates & Prepares',tw:167,line:[25,112,.5],ds:'AI can act autonomously, execute tasks, and integrate workflows.',dy:119,dw:180,label:'Take action',lx:22,ly:16},
+ explain:{bg:'#d5e6ff',glow:'#73acfe',g:[-86,41,291,261],title:'AI Reflects, Clarifies & Coaches',tw:167,line:[25,112,.5],ds:'AI clarifies, teaches, and provides context for its actions.',dy:121,dw:180,label:'Explain & guide',lx:20,ly:16},
+ collab:{bg:'#ff9aa2',glow:'#e35254',g:[-85,45,311,262],title:'AI Partners, Enhances Human Creativity & Decision-Making',tw:197,line:[25,132,.5],ds:'AI as a partner, not to replace humans but to enhance creativity and strategy.',dy:141,dw:162,label:'Collaborate',lx:22,ly:16}};
+const BACK={understand:{bg:'#e0ecb3',glow:'#97b261',gy:296,ink:'#486c00',ly:16},communicate:{bg:'#e2d8ff',glow:'#9e97ff',gy:285,ink:'#5147da',ly:20},think:{bg:'#ffeba7',glow:'#e5b001',gy:283,ink:'#906e00',ly:20},
+ action:{bg:'#ffc8a2',glow:'#ff723e',gy:294,ink:'#ae441d',ly:20},explain:{bg:'#c5d5ec',glow:'#7baaee',gy:286,ink:'#1556ba',ly:20},collab:{bg:'#ef9ca2',glow:'#d3595c',gy:286,ink:'#7b0204',ly:20}};
+const ART={'see-recognize':['See & recognize','Detect objects, people, scenes, or environmental changes.',167],'hear-understand':['Hear & understand','Recognize speech, environmental sounds, or audio patterns.',167],'combine-inputs':['Combine multiple inputs','Integrate visual, audio, and text data for richer context.',167],'read-interpret':['Read & interpret','Extract meaning from text, documents, or structured data.',167],
+ 'explain-generate':['Explain & generate text','Summarize, revise, or generate insights.',167],'speak-naturally':['Speak naturally','Convert text to lifelike voice output.',142],'converse-context':['Converse in context','Maintain dialogue, remember interactions, and answer questions.',180],'translate-adapt':['Translate & adapt style','Switch languages, adjust tone, and adapt messages.',180],
+ 'retrieve-knowledge':['Retrieve knowledge quickly','Find relevant information.',167],'plan-solve':['Plan & solve problems','Suggest solutions or action sequences.',167],'predict-outcomes':['Predict outcomes','Forecast trends, risks, or potential results.',167],'generate-ideas':['Generate creative ideas','Propose new concepts or strategies.',167],
+ 'trigger-actions':['Trigger actions','Initiate actions across systems and services.',167],'monitor-adjust':['Monitor & adjust actions','Observe execution and adapt.',167],'automate-workflows':['Automate workflows','Orchestrate multi-step workflows.',167],'integrate-systems':['Integrate systems & APIs','Interact with external systems.',167],
+ 'explainability':['Explainability','Describe how and why a result was generated.',167],'guidance-coaching':['Guidance & coaching','Suggest next steps or improvements.',167],'transparency':['Transparency','Search for information to help validate decisions.',167],'critical-thinking':['Critical thinking support','Challenge assumptions and highlight blind spots.',197],
+ 'co-creation':['Co-creation tools','Brainstorm or design alongside users.',167],'decision-support':['Decision support','Visualize data for human interpretation.',167],'adaptive-assistance':['Adaptive assistance','Abstract technical complexity, allowing users to perform tasks using natural language instead of coding.',191],'ethical-awareness':['Ethical awareness','Help users understand trade-offs and risks.',191]};
+const FRONT_IMG={}; /* family id -> exported front image (data URI), filled in once the glass renders are shared */
+function cardArt(id,style=''){const c=CARDS[id],k=BACK[c.fam],[label,text,tw]=ART[id];
+ return `<div class="card back" style="--bg:${k.bg};--ink:${k.ink};${style}" role="img" aria-label="AI Card, ${esc(c.famName)}: ${esc(c.name)}. ${esc(text)}"><span class="glow" style="--glow:${k.glow};left:${u(40)};top:${u(k.gy)};width:${u(244)};height:${u(174)}"></span><span class="lbl" style="left:${u(20)};top:${u(k.ly)}">${esc(label)}</span><span class="tt" style="left:${u(19)};top:${u(41)};width:${u(tw)}">${esc(text)}</span></div>`}
+function frontArt(f,style=''){const k=FRONT[f.id];const img=FRONT_IMG[f.id];
+ if(img)return `<div class="card front has-img" style="${style}" role="img" aria-label="AI Card family: ${esc(f.name)}. ${esc(k.ds)}"><img class="glass-img" src="${img}" alt="" decoding="async"></div>`;
+ return `<div class="card front" style="--bg:${k.bg};${style}" role="img" aria-label="AI Card family: ${esc(f.name)}. ${esc(k.ds)}">${img?'':`<span class="glow" style="--glow:${k.glow};left:${u(k.g[0])};top:${u(k.g[1])};width:${u(k.g[2])};height:${u(k.g[3])}"></span><span class="glass"></span>`}<span class="lbl" style="left:${u(k.lx)};top:${u(k.ly)}">${esc(k.label)}</span><span class="tt" style="left:${u(19)};top:${u(41)};width:${u(k.tw)}">${k.title}</span><span class="rule" style="left:${u(k.line[0])};top:${u(k.line[1])};opacity:${k.line[2]}"></span><span class="ds" style="left:${u(19)};top:${u(k.dy)};width:${u(k.dw)}">${esc(k.ds)}</span></div>`}
+const STICON={scoping:'<svg viewBox="0 0 14 14" width="14" height="14" aria-hidden="true"><circle cx="7" cy="7" r="5.3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2.4 2"/></svg>',
+ progress:'<svg viewBox="0 0 14 14" width="14" height="14" aria-hidden="true"><circle cx="7" cy="7" r="5.3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M7 1.7a5.3 5.3 0 0 1 0 10.6z" fill="currentColor"/></svg>',
+ shipped:'<svg viewBox="0 0 14 14" width="14" height="14" aria-hidden="true"><circle cx="7" cy="7" r="6" fill="currentColor"/><path class="ck" d="M4.4 7.2l1.8 1.8 3.5-3.7" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'};
+const badge=st=>`<span class="badge s-${st}">${STICON[st]}${STATUS[st]}</span>`;
+const stIco=st=>`<span class="st-ico s-${st}" role="img" aria-label="${STATUS[st]}">${STICON[st]}</span>`;
+const mark=st=>stIco(st);
+const statusLine=p=>`<span class="proj-meta">${badge(p.status)}<span>${esc(p.client)}</span></span>`;
+
+/* project previews: each project’s own interface */
+function chart(w,h){const v=[40,43,45,44,48,50,29,46,49,52];const px=v.map((y,i)=>[6+i*((w-12)/9),h-6-(y-25)*((h-14)/27)]);
+ return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><path class="draw" d="M${px.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' L')}" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle class="ring" cx="${px[6][0]}" cy="${px[6][1]}" r="9" fill="none" stroke="var(--ai)" stroke-width="2"/></svg>`}
+function preview(kind,big){switch(kind){
+ case 'summary':return `<div class="ui" style="width:${big?520:250}px"><div style="display:flex;gap:8px;align-items:center"><span class="ai-chip">AI summary</span><span class="small muted">Claim #4182</span></div><div class="anim-in" style="font-size:${big?14.5:12.5}px;margin-top:10px">• Rear-end collision at low speed, no injuries</div><div class="anim-in d1" style="font-size:${big?14.5:12.5}px;margin-top:4px">• Photos and police report attached</div>${big?'<div class="anim-in d2" style="font-size:14.5px;margin-top:4px">• Within policy limits, no prior claims in 3 years</div>':''}<div class="mini-btns anim-in d2"><span>Approve</span><span>Send back</span></div></div>`;
+ case 'fill':return `<div style="display:flex;gap:14px;align-items:center"><div class="ui lines" style="width:${big?120:84}px;padding:12px"><i style="width:80%"></i><i style="width:60%"></i><i style="width:90%"></i><i style="width:50%"></i></div><div style="display:flex;flex-direction:column;gap:7px"><div class="field anim-in"><small>Reason for visit</small><b>Knee pain, 2 weeks</b></div><div class="field anim-in d1"><small>Allergies</small><b>Penicillin</b></div><div class="field anim-in d2"><small>Medications</small><b>Ibuprofen</b></div></div></div>`;
+ case 'callout':return `<div style="width:${big?520:280}px"><div class="ui" style="padding:${big?20:12}px"><div class="small muted">Shipments on time, last 10 days</div>${chart(big?480:256,big?150:80)}</div><div class="callout anim-in d3" style="margin-top:8px">${big?'14 shipments will miss their window. Carrier messages are drafted.':'14 shipments will miss their window'}</div></div>`;
+ case 'themes':return `<div style="display:flex;flex-direction:column;gap:7px">${[['Onboarding friction','12 quotes'],['Pricing confusion','8 quotes'],['Trust in data','5 quotes']].map(([t,q],i)=>`<div class="ui anim-in ${i?'d'+i:''}" style="width:${big?360:250}px;padding:9px 12px;display:flex;justify-content:space-between;font-size:12.5px"><b>${t}</b><span style="color:var(--ai);font-weight:500">${q}</span></div>`).join('')}</div>`;
+ case 'brief':return `<div class="ui lines" style="width:${big?340:230}px"><b style="font-size:12px">Client brief, Monday 9:00</b><i style="width:90%"></i><i style="width:75%"></i><div class="callout anim-in d1" style="margin-top:9px;font-size:11.5px">Suggest: review bond ladder</div><i style="width:60%"></i></div>`;
+ case 'desc':return `<div style="display:flex;gap:12px;align-items:center"><div style="width:${big?130:90}px;height:${big?170:116}px;border-radius:10px;background:var(--line)"></div><div class="ui" style="width:${big?260:180}px;padding:12px"><b style="font-size:12px">Trail runner, waterproof</b><div class="anim-in d1" style="background:var(--ai-tint);border-radius:6px;padding:7px;margin-top:8px;display:flex;flex-direction:column;gap:5px"><i style="height:4px;border-radius:4px;background:var(--ai);opacity:.35;width:95%"></i><i style="height:4px;border-radius:4px;background:var(--ai);opacity:.35;width:80%"></i><i style="height:4px;border-radius:4px;background:var(--ai);opacity:.35;width:65%"></i></div></div></div>`;
+ case 'clauses':return `<div class="ui lines" style="width:${big?360:260}px"><b style="font-size:12px">Master services agreement</b><i style="width:90%"></i><i style="width:70%"></i><div class="anim-in d1" style="display:flex;gap:6px;align-items:center;background:var(--ai-tint);border-radius:6px;padding:5px 8px;margin-top:9px;font-size:11.5px;font-weight:500">Termination: 30 days notice <span class="ai-chip" style="height:18px;background:var(--bg)">§ 4.2</span></div><i style="width:80%"></i></div>`;
+ case 'cards':return `<div style="display:flex">${['explain-generate','predict-outcomes','explainability'].map((id,i)=>cardArt(id,`width:${big?150:104}px;margin-left:${i?-30:0}px;transform:rotate(${(i-1)*6}deg);box-shadow:var(--shadow)`)).join('')}</div>`;
+ default:return ''}}
+const previewStage=(p,cls='',big=false)=>`<div class="stage play ${cls}" aria-hidden="true">${preview(p.vis,big)}${cls?'':`<span class="type">${esc(p.type)}</span>`}</div>`;
+
+/* live library demos in shadow roots (exactly as in the UI Patterns library) */
+const demo=(id,cls='')=>PB[id]?`<div class="lstage ${cls}" data-pat="${id}" role="img" aria-label="Live demo: ${esc(PB[id].name)}"></div>`:'';
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){startDemo(e.target);io.unobserve(e.target)}}),{threshold:.35});
+function mountDemo(h){const id=h.dataset.pat,d=LIB.D[id],st=h._stage;st.innerHTML='';h._started=false;
+ if(!d){st.innerHTML='<span style="font-size:13px;color:#6e6e73">Demo coming</span>';return}
+ const box=document.createElement('div');box.style.cssText='width:100%;display:flex;justify-content:center';box.innerHTML=d.html;st.append(box);d.init&&d.init(box);h._box=box;
+ if(d.run){const b=document.createElement('button');b.className='replay';b.textContent='Replay';b.setAttribute('aria-label','Replay demo');b.onclick=e=>{e.preventDefault();e.stopPropagation();mountDemo(h);startDemo(h)};st.append(b)}
+ else if(d.try){const t=document.createElement('span');t.className='try';t.textContent='Try it';st.append(t)}}
+function startDemo(h){const d=LIB.D[h.dataset.pat];if(d&&d.run&&h._box&&!h._started){h._started=true;d.run(h._box)}}
+function hydrate(){$$('.lstage:not([data-ok])').forEach(h=>{h.dataset.ok='1';const sr=h.attachShadow({mode:'open'});
+ const size=['hero','tool','mini','row'].find(c=>h.classList.contains(c))||'m';sr.innerHTML=`<style>${LIBCSS}:host{display:block}.stage{position:absolute!important;inset:0!important;height:auto!important;width:auto!important;margin:0!important;border-radius:0!important;box-shadow:none!important;box-sizing:border-box}.stage[data-size=hero]>div:first-child{zoom:1.55}.stage[data-size=tool]>div:first-child{zoom:1.1}.stage[data-size=mini]>div:first-child{zoom:.8}.stage[data-size=row]>div:first-child{zoom:.72}</style><div class="stage" data-size="${size}"></div>`;h._stage=sr.querySelector('.stage');mountDemo(h);io.observe(h)})}
+new MutationObserver(()=>hydrate()).observe(document.getElementById('app'),{childList:true,subtree:true});
+new MutationObserver(()=>hydrate()).observe(document.getElementById('layer'),{childList:true,subtree:true});
+
+
+/* theme: follows the system until the person picks; picking the system's own theme goes back to following it */
+const sysDark=matchMedia('(prefers-color-scheme: dark)');
+const effTheme=()=>document.documentElement.dataset.theme||(sysDark.matches?'dark':'light');
+function themeBtn(){const d=effTheme()==='dark';return `<button class="icon-btn" data-theme-toggle aria-label="Switch to ${d?'light':'dark'} mode" title="Switch to ${d?'light':'dark'} mode">${d?icon.sun:icon.moon}</button>`}
+function syncThemeBtns(){$$('[data-theme-toggle]').forEach(b=>b.outerHTML=themeBtn())}
+function toggleTheme(){const next=effTheme()==='dark'?'light':'dark';const sys=sysDark.matches?'dark':'light';
+ if(next===sys){delete document.documentElement.dataset.theme;store.del('theme')}else{document.documentElement.dataset.theme=next;store.set('theme',next)}syncThemeBtns()}
+sysDark.addEventListener('change',syncThemeBtns);
+/* ===== layout ===== */
+let route='home',lastRoute='home';
+function header(active,onHome){return `<header class="top"><div class="wrap">
+ <a class="logo" href="#home" aria-label="Builders, home"><b>LOKA</b><i></i>Builders</a>
+ <nav class="nav" aria-label="Main">${[['work','Work'],['explore','Explore']].map(([h,l])=>`<a href="#${h}" ${active===h?'aria-current="page"':''}>${l}</a>`).join('')}</nav>
+ <div class="right">${themeBtn()}<button class="icon-btn" data-palette aria-label="Search (⌘K)">${icon.search}</button>
+ <a class="btn btn-sm ${onHome?'btn-ghost':'btn-primary'}" href="#start" data-newstart>Start a project</a><span class="avatar hide-sm" aria-label="Your account">AM</span></div></div></header>`}
+const footer=()=>`<footer><div class="wrap"><span>Loka Product Design</span><span>Builders, prototype v2. Sample project data.</span></div></footer>`;
+const shell=(active,body,onHome)=>header(active,onHome)+`<main id="main">${body}</main>`+footer();
+
+/* ===== home ===== */
+function viewHome(){const d=openDrafts()[0];
+ const pill=d?`<button class="pill" data-continue="${d.id}"><span class="tag dark">Continue</span>${esc(d.client?.name||'Your')} blueprint, ${filledCount(d)} of 7 sections ${icon.arrow}</button>`
+  :`<a class="pill" href="#ui-patterns"><span class="tag">New</span>5 UI patterns added, including Mixed input and Read-aloud ${icon.arrow}</a>`;
+ const workVis=`<div class="stage play"><div class="ui" style="position:absolute;left:12%;top:44px;width:260px"><span class="proj-meta" style="font-size:11px">${stIco('progress')}In progress, Northwind</span><b style="display:block;margin-top:6px;font-size:14px">Claims assistant</b><div style="background:var(--surface);border-radius:8px;padding:9px;margin-top:8px"><span class="ai-chip">AI summary</span><div class="lines"><i style="width:90%"></i><i style="width:70%"></i></div></div></div>
+  <div class="ui anim-in d1" style="position:absolute;left:36%;top:166px;width:280px"><span class="proj-meta" style="font-size:11px">${stIco('shipped')}Shipped, Meridian</span><b style="display:block;margin-top:6px;font-size:14px">Shipment exception triage</b><div class="callout" style="margin-top:8px;font-size:11.5px">14 shipments will miss their window</div></div></div>`;
+ const fan=['understand','communicate','think','action','collab'].map((f,i)=>frontArt(FAMILIES.find(x=>x.id===f),`margin:-112px 0 0 ${-75+(i-2)*78}px;transform:rotate(${(2-i)*6}deg)`)).join('');
+ const exploreVis=`<div class="stage"><div class="fan">${fan}</div><span class="ui" style="position:absolute;right:8%;bottom:28px;padding:7px 12px;border-radius:999px;font-size:12px;font-weight:500;display:flex;gap:7px;align-items:center"><i class="mark" style="background:var(--ai)"></i>31 patterns, playing live</span></div>`;
+ const sec=(href,title,line,shorts,vis)=>`<article class="sec-card"><a href="#${href}" tabindex="-1" aria-hidden="true">${vis}</a><a class="row" href="#${href}"><span class="h2" style="font-size:26px">${title}</span>${icon.arrow}</a><p>${line}</p><div class="short">${shorts.map(([h,l])=>`<a href="#${h}">${l}</a>`).join('')}</div></article>`;
+ return shell('',`<div class="wrap"><section class="hero">${pill}
+  <h1 class="h-hero">Design at Loka, in one place.</h1>
+  <p class="lead">See what we’ve built, find the tools we use, or start something new.</p>
+  <div class="acts"><a class="btn btn-lg btn-primary" href="#start" data-newstart>Start a project</a><button class="btn btn-lg btn-ghost" data-palette>${icon.search}Search everything <kbd>⌘K</kbd></button></div></section>
+  <div class="sections">${sec('work','Work','Projects we’ve built and what’s in progress.',[['work-shipped','Show a client real projects'],['work-in-progress','See what’s in progress']],workVis)}
+  ${sec('explore','Explore','AI Cards, UI Patterns, and how they connect.',[['ai-cards','Open the AI Cards'],['ui-patterns','Browse UI Patterns']],exploreVis)}</div></div><div style="height:120px"></div>`,true)}
+
+/* breadcrumb: where you are, and one click to any level above. On phones it becomes “‹ Parent”. */
+const chev='<svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3.5L10.5 8 6 12.5"/></svg>';
+function crumbs(items){const parent=items[items.length-2];
+ return `<nav class="crumb" aria-label="Breadcrumb"><a class="crumb-back" href="${parent[1]}" ${parent[2]||''}><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3.5L5.5 8l4.5 4.5"/></svg>${esc(parent[0])}</a><ol>${items.map((it,i)=>i<items.length-1?`<li><a href="${it[1]}" ${it[2]||''}>${esc(it[0])}</a>${chev}</li>`:`<li><span aria-current="page">${esc(it[0])}</span></li>`).join('')}</ol></nav>`}
+const WORKROUTE={progress:['In progress','#work-in-progress'],scoping:['Scoping','#work-scoping'],shipped:['Shipped','#work-shipped']};
+/* ===== work ===== */
+let workFilter='all';
+function projCard(p){const foot=p.status==='shipped'?`<p class="outcome">${esc(p.outcome)}</p>`:`<p class="now"><span>Now:</span> ${esc(p.now)}</p>`;
+ return `<a class="proj" href="#p-${p.slug}"><div class="stage play" aria-hidden="true">${p.vis?preview(p.vis):'<span class="small muted">Blueprint</span>'}${badge(p.status)}</div>
+  <div style="margin-top:14px"><span class="proj-meta"><span>${esc(p.client)}</span><span aria-hidden="true">·</span><span>${esc(p.type)}</span><span class="vh">, ${STATUS[p.status]}</span></span><h3 class="h3">${esc(p.name)}</h3><p class="desc">${esc(p.line)}</p>${foot}</div></a>`}
+function viewWork(){const counts={all:PROJECTS.length,progress:0,scoping:0,shipped:0};PROJECTS.forEach(p=>counts[p.status]++);
+ const list=PROJECTS.filter(p=>workFilter==='all'||p.status===workFilter);
+ const tabs=[['all','All'],['progress','In progress'],['scoping','Scoping'],['shipped','Shipped']].map(([k,l])=>`<button class="tab" data-wf="${k}" aria-pressed="${workFilter===k}">${k!=='all'?mark(k):''}${l} <b>${counts[k]}</b></button>`).join('');
+ return shell('work',`<div class="wrap page"><h1 class="h1">Work</h1><p class="lead" style="margin-top:16px">What Design has built, and what it’s building now.</p>
+  <div class="tabs" role="group" aria-label="Filter by status">${tabs}</div>
+  <div class="grid3">${list.map(projCard).join('')||'<p class="muted">Nothing here yet.</p>'}</div></div>`)}
+function viewProject(s){const p=PROJECTS.find(x=>x.slug===s);if(!p)return viewWork();
+ const i=PROJECTS.indexOf(p),nx=PROJECTS[(i+1)%PROJECTS.length];
+ const where=p.status==='shipped'?`<div class="big"><h4>What happened</h4><p>${esc(p.outcome)}</p></div>`:`<div class="big"><h4>Now</h4><p>${esc(p.now)}</p>${p.next?`<small>Next: ${esc(p.next)}</small>`:''}</div>`;
+ const pats=p.patterns.slice(0,2).map(id=>`<div>${demo(id)}<div class="pmeta"><b><a class="link" href="#pattern-${id}">${esc(PB[id].name)}</a></b><span>${PB[id].layer==='core'?'Core':'Trust'}</span></div></div>`).join('');
+ const usedP=new Set();const rows=p.cards.map(c=>{const m=MAP[c];const pt=p.patterns.find(x=>m.pats.includes(x)&&!usedP.has(x))||p.patterns.find(x=>m.pats.includes(x))||m.pats[0];usedP.add(pt);return `<tr><td><button data-card="${c}">${esc(CARDS[c].name)}</button></td><td>${esc(m.caps.map(x=>CB[x].name)[0]||'Trust layer')}</td><td><a href="#pattern-${pt}">${esc(PB[pt]?.name||'')}</a></td></tr>`}).join('');
+ return shell('work',`<div class="wrap page">${crumbs([['Work','#work'],WORKROUTE[p.status],[p.name]])}
+  <div class="page-head"><div><div class="facts-line">${statusLine(p)}${p.industry?`<span>${esc(p.industry)}</span>`:''}<span>${esc(p.type)}, ${esc(p.year)}</span></div><h1 class="h1">${esc(p.name)}</h1><p class="lead">${esc(p.line)}</p></div>
+  <a class="btn btn-primary" href="#start" data-template="${p.slug}">Start from this</a></div>
+  ${p.vis?previewStage(p,'hero-vis',true).replace('class="stage play hero-vis"','class="stage play hero-vis" style="height:min(480px,62vw);margin-top:40px;border-radius:28px"'):''}
+  <div class="story"><div><h4>The problem</h4><p>${esc(p.problem)}</p></div><div><h4>What we built</h4><p>${esc(p.built||'Not written yet.')}</p></div>${where}</div>
+  <div class="lower"><div><h2 class="h3" style="margin-bottom:18px">How it works</h2><div class="two-demos">${pats||'<p class="muted">No patterns chosen yet.</p>'}</div></div>
+   <div><h2 class="h3" style="margin-bottom:18px">Built with</h2>${rows?`<table class="trace"><thead><tr><th>AI Card</th><th>Capability</th><th>Pattern</th></tr></thead><tbody>${rows}</tbody></table>`:'<p class="muted">No AI Cards chosen yet.</p>'}
+   <div class="facts"><div><span>Team</span><span>${esc(p.team)}</span></div><div><span>Timeline</span><span>${esc(p.time)}</span></div></div></div></div>
+  <div class="next"><a class="label" href="#work">All work</a><a href="#p-${nx.slug}" style="text-align:right"><span class="label">Next project</span><div class="h3">${esc(nx.name)}</div></a></div></div>`)}
+
+/* ===== explore ===== */
+function viewExplore(){const fan=[0,1,2,4,5].map((fi,i)=>frontArt(FAMILIES[fi],`margin:-105px 0 0 ${-75+(i-2)*76}px;transform:rotate(${(2-i)*6}deg)`)).join('');
+ return shell('explore',`<div class="wrap page"><h1 class="h1">Explore</h1><p class="lead" style="margin-top:16px">Every tool and method we use, each shown working.</p>
+  <section style="margin-top:72px"><div class="sec-head"><div><h2 class="h2">Tools</h2><p>For showing clients what AI can do, and how it looks.</p></div></div>
+   <div class="tools"><article class="tool"><a href="#ai-cards" tabindex="-1" aria-hidden="true"><div class="stage"><div class="fan">${fan}</div></div></a><a class="row" href="#ai-cards"><span class="tt"><span class="h2 name">AI Capability Cards</span><span class="meta">24 cards in 6 families</span></span>${icon.arrow}</a><p>What AI can realistically do, in 24 cards. Use them to set expectations with clients.</p><div class="short"><a href="#ai-cards">Open the deck</a></div></article>
+   <article class="tool">${demo('anomaly','tool')}<a class="row" href="#ui-patterns"><span class="tt"><span class="h2 name">UI Patterns for AI</span><span class="meta">${PATS.length} patterns, ${CAPS.length} capabilities</span></span>${icon.arrow}</a><p>How AI features look and behave, shown working — not described.</p><div class="short"><a href="#ui-patterns">Browse by capability</a><a href="#system-map">See how they connect</a></div></article></div></section>
+  <section><div class="sec-head"><div><h2 class="h2">Workshop formats</h2><p>How we start with a client, from a day to a first version.</p></div></div>
+   <div class="rows">${FORMATS.map(f=>`<div class="r"><b>${f.name}</b><span class="u muted">${f.dur}</span><span class="small faint">Agenda coming soon</span></div>`).join('')}</div></section>
+  <section><div class="connect"><div><h2 class="h2">How everything connects</h2><div class="chain">${['AI Card','Capability','Pattern','Project'].map(s=>`<span class="chip">${s}</span>`).join('<span aria-hidden="true">›</span>')}</div></div><a class="btn btn-ghost" href="#system-map">Open the system map</a></div></section></div>`)}
+
+let famSel='think';
+function projectsUsing(test){return PROJECTS.filter(test)}
+function viewCards(){const f=FAMILIES.find(x=>x.id===famSel);
+ const seen=PROJECTS.filter(p=>p.cards.length).slice(0,4).map(p=>`<a class="r" href="#p-${p.slug}">${mark(p.status)}<b>${esc(p.name)}</b><span class="c">${esc(p.client)}, ${STATUS[p.status].toLowerCase()}</span><span class="u">Uses ${p.cards.map(c=>esc(CARDS[c].name)).join(', ')}</span>${icon.arrow}</a>`).join('');
+ return shell('explore',`<div class="wrap page">${crumbs([['Explore','#explore'],['AI Capability Cards']])}
+  <div class="page-head"><div><div class="facts-line"><span>Tool</span><span>24 cards in 6 families</span><span>Print deck and online</span></div><h1 class="h1">AI Capability Cards</h1><p class="lead">What AI can realistically do, in 24 cards — so we agree on what’s possible before anyone promises anything.</p></div>
+  <a class="btn btn-primary" href="#start" data-intent="caps">Use in a project</a></div>
+  <section class="oneminute" aria-label="In one minute"><span class="label">In one minute</span><div class="cols"><div><h4>What it is</h4><p>24 cards that show what AI can realistically do, grouped in 6 families. Each one has a real example.</p></div><div><h4>When to use it</h4><p>On scoping calls, or whenever someone asks “can AI do this?” You leave with a shortlist worth pursuing.</p></div></div></section>
+  <section style="margin-top:72px"><div class="sec-head"><div><h2 class="h2">The deck</h2><p>Pick a family to see its four cards. Open a card for examples, limits and how it looks in a product.</p></div></div>
+   <div class="families" role="group" aria-label="Families">${FAMILIES.map(x=>`<button class="fam" data-fam="${x.id}" aria-pressed="${x.id===famSel}">${frontArt(x)}<span>${x.name}</span></button>`).join('')}</div>
+   <div class="tray"><div><p class="label">${f.name}</p><h3 class="h2" style="font-size:24px;margin-top:8px">${esc(f.front)}</h3><p class="muted" style="margin-top:8px;font-size:15px">${esc(f.about)}</p></div>
+   <div class="cards">${f.cards.map(([id,n])=>`<button data-card="${id}" aria-label="Open ${esc(n)}">${cardArt(id)}</button>`).join('')}</div></div></section>
+  <section><div class="sec-head"><h2 class="h2">Seen in our work</h2><a class="link" href="#work">All projects</a></div><div class="rows">${seen}</div></section>
+  <section><div class="three small-p"><div><h4>Used in</h4><p>Start a project, Capabilities section</p></div><div><h4>Works with</h4><p>UI Patterns — every card maps to live patterns</p></div><div><h4>Owner</h4><p>Product Design team, updated Oct 2026</p></div></div></section></div>`)}
+
+function openCard(id){const c=CARDS[id];if(!c)return;const f=FAMILIES.find(x=>x.id===c.fam);const m=MAP[id];const det=DETAIL[id];
+ const inWork=PROJECTS.filter(p=>p.cards.includes(id));const first=m.pats[0];
+ openLayer(`<div class="modal" role="dialog" aria-modal="true" aria-label="${esc(c.name)}"><button class="close" data-close aria-label="Close">${icon.close}</button>
+  <div class="cd"><div class="left">${cardArt(id)}<p class="small faint" style="margin-top:12px">Card ${c.i+1} of 4, ${esc(f.name)}</p></div>
+  <div><span class="chip">${esc(f.name)}</span><h2>${esc(c.name)}</h2><p class="lead" style="font-size:18px;margin-top:10px">${esc(c.desc)}</p>
+   <div class="block"><h4>In our work</h4>${inWork.length?inWork.map(p=>`<a class="useref" href="#p-${p.slug}">${mark(p.status)}<div><b>${esc(p.name)}</b><p>${esc(p.line)}</p></div>${icon.arrow}</a>`).join(''):'<p class="muted">Not used in a project yet. It could be the first.</p>'}</div>
+   ${det?`<div class="block two"><div><h4 style="margin:0 0 12px;font-size:13px;color:var(--muted)">What it needs</h4><div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start">${det.needs.map(n=>`<span class="chip">${esc(n)}</span>`).join('')}</div></div><div><h4 style="margin:0 0 12px;font-size:13px;color:var(--muted)">Limits to say out loud</h4><p>${esc(det.limits)}</p></div></div>`:''}
+   <div class="block"><h4>See it in a product</h4>${demo(first)}<div class="pmeta" style="flex-wrap:wrap"><span style="font-size:14px;color:var(--fg)"><b>${esc(PB[first].name)}</b> <span class="muted" style="font-size:13px">${m.pats.length>1?'Also: '+m.pats.slice(1).map(x=>`<a class="link" style="font-weight:500;font-size:13px" href="#pattern-${x}">${esc(PB[x].name)}</a>`).join(', '):''}</span></span><a class="link" href="#pattern-${first}">Open pattern</a></div></div>
+   ${det?`<div class="block"><h4>Pairs well with</h4><div style="display:flex;gap:8px;flex-wrap:wrap">${det.pairs.map(p=>`<button class="chip" data-card="${p}">${esc(CARDS[p].name)}</button>`).join('')}</div></div>`:''}</div></div>
+  <div class="family-strip">${f.cards.map(([cid,n])=>`<button data-card="${cid}" aria-current="${cid===id}">${cardArt(cid)}<span><b>${esc(n)}</b><small>${cid===id?'Viewing now':'Open'}</small></span></button>`).join('')}</div></div>`)}
+
+/* ===== UI patterns ===== */
+let patCap='all',patSurf='all';
+const fits=p=>patSurf==='all'||p.s===patSurf||p.s==='both';
+const patsFor=cap=>PATS.filter(p=>(cap==='all'||p.caps.includes(cap))&&fits(p));
+function patCard(p){return `<article>${demo(p.id)}<div class="pmeta"><a class="name" href="#pattern-${p.id}">${esc(p.name)}</a><span>${SURF[p.s]}</span></div><p class="use">${esc(p.use)}</p></article>`}
+function libraryBlock(){const list=patsFor(patCap);const cap=CB[patCap];
+ const item=(id,name)=>`<li><button data-pcap="${id}" aria-current="${patCap===id}">${esc(name)}<span>${patsFor(id).length}</span></button></li>`;
+ const cc=cap?cardsForCap(patCap):[];
+ const layer=(k,t,s)=>{const L=list.filter(p=>p.layer===k);return `<div class="layer"><h3>${t}</h3><p>${s}</p>${L.length?`<div class="pgrid">${L.map(patCard).join('')}</div>`:'<p class="muted small">Nothing in this layer for this surface.</p>'}</div>`};
+ return `<div class="libhead"><div><h2 class="h2">The library</h2><p class="muted" style="margin-top:6px;font-size:15px">Pick what the AI does. See the patterns that bring it to the interface, playing live.</p></div>
+  <div class="seg" role="group" aria-label="Surface">${[['all','All surfaces'],['chat','Chat'],['embedded','Embedded in product']].map(([k,l])=>`<button data-psurf="${k}" aria-pressed="${patSurf===k}">${l}</button>`).join('')}</div></div>
+  <div class="lib"><nav class="rail" aria-label="Capabilities"><h5>Browse</h5><ul>${item('all','All patterns')}</ul><h5>What the AI does</h5><ul>${CAPS.map(c=>item(c.id,c.name)).join('')}</ul></nav>
+  <div><div class="cap-head"><h2>${cap?esc(cap.name):'All patterns'}</h2><p>${cap?esc(cap.desc):`${PATS.length} patterns across ${CAPS.length} things the AI does.`}</p>${cap?`<p class="ex">Typical features: ${esc(cap.ex)}</p>`:''}
+   ${cc.length?`<div class="cap-cards"><span class="label">AI Cards:</span>${cc.map(c=>`<button class="chip" data-card="${c}">${esc(CARDS[c].name)}</button>`).join('')}</div>`:''}</div>
+   ${layer('core','Core interaction','How people trigger the AI and receive what it produces.')}${layer('trust','Trust and control','How people check, steer and recover from what the AI did.')}</div></div>`}
+function viewPatterns(){const used=PROJECTS.filter(p=>p.patterns.length).slice(0,3);
+ return shell('explore',`<div class="wrap page">${crumbs([['Explore','#explore'],['UI Patterns for AI']])}
+  <div class="page-head"><div><div class="facts-line"><span>Tool</span><span>${PATS.length} patterns, ${PATS.filter(p=>p.layer==='core').length} core and ${PATS.filter(p=>p.layer==='trust').length} trust</span><span>Live library</span></div><h1 class="h1">UI Patterns for AI</h1><p class="lead">How AI features look and behave, shown working — not described.</p></div>
+  <div class="acts"><button class="btn btn-ghost" disabled aria-describedby="soon-note" title="Not available yet">Start a draft <span class="soon">Soon</span></button><a class="btn btn-primary" href="#start" data-intent="patterns">Use in a project</a></div></div>
+  <section class="oneminute" aria-label="In one minute"><span class="label">In one minute</span><div class="cols"><div><h4>What it is</h4><p>${PATS.length} interface patterns for AI features, organized by what the AI does. Every one plays live.</p></div><div><h4>When to use it</h4><p>When shaping an AI feature, or showing a client how a capability looks in a real product.</p></div></div></section>
+  <section style="margin-top:72px" id="library">${libraryBlock()}</section>
+  <section><div class="sec-head"><h2 class="h2">Seen in our work</h2><a class="link" href="#work">All projects</a></div><div class="rows">${used.map(p=>`<a class="r" href="#p-${p.slug}">${mark(p.status)}<b>${esc(p.name)}</b><span class="c">${esc(p.client)}, ${STATUS[p.status].toLowerCase()}</span><span class="u">Uses ${p.patterns.map(x=>esc(PB[x].name)).join(', ')}</span>${icon.arrow}</a>`).join('')}</div></section>
+  <section><div class="three small-p"><div><h4>Used in</h4><p>Start a project, Pattern set section</p></div><div><h4>Works with</h4><p>AI Capability Cards — every pattern comes from a card</p></div><div><h4>Owner</h4><p>Product Design team, updated Oct 2026</p></div></div></section></div>`)}
+function viewPattern(id){const p=PB[id];if(!p)return viewPatterns();const cap=CB[p.caps[0]];const sib=PATS.filter(x=>x.caps.includes(p.caps[0]));const k=sib.indexOf(p);const prev=sib[(k-1+sib.length)%sib.length],nxt=sib[(k+1)%sib.length];
+ const from=cardsForPat(id);const used=PROJECTS.filter(x=>x.patterns.includes(id));
+ return shell('explore',`<div class="wrap page">${crumbs([['Explore','#explore'],['UI Patterns','#ui-patterns','data-setcap="all"'],[cap.name,'#ui-patterns',`data-setcap="${p.caps[0]}"`],[p.name]])}
+  <div class="page-head"><div><div class="facts-line"><span>Pattern</span><span>${p.layer==='core'?'Core interaction':'Trust and control'}</span><span>${SURF[p.s]}</span><span>${p.caps.map(c=>CB[c].name).join(', ')}</span></div><h1 class="h1">${esc(p.name)}</h1><p class="lead">${esc(cap.desc)}</p></div>
+  <div class="acts"><button class="btn btn-ghost" disabled aria-describedby="soon-note" title="Not available yet">Add to a draft <span class="soon">Soon</span></button><a class="btn btn-primary" href="#start" data-intent="patterns" data-pat="${id}">Use in a project</a></div></div>
+  <div style="margin-top:40px">${demo(id,'hero')}</div>
+  <div class="ua" style="margin-top:48px"><div><h4>Use it when</h4><p>${esc(p.use)}</p></div><div><h4>Avoid it when</h4><p>${esc(p.avoid)}</p></div></div>
+  <section style="margin-top:80px"><h2 class="h2" style="margin-bottom:20px">Pair it with</h2><div class="two-demos wide">${p.pairs.filter(x=>PB[x]).map(x=>`<div>${demo(x)}<div class="pmeta"><a class="link" style="font-size:15px" href="#pattern-${x}">${esc(PB[x].name)}</a><span>${PB[x].layer==='core'?'Core':'Trust'}</span></div></div>`).join('')}</div></section>
+  <section><div class="lower even" style="margin-top:0"><div><h2 class="h2">From AI Cards</h2><div class="rows" style="margin-top:16px">${from.length?from.map(c=>`<button class="r" data-card="${c}"><b style="min-width:0;flex:1">${esc(CARDS[c].name)}</b><span class="small muted">${esc(CARDS[c].famName)}</span>${icon.arrow}</button>`).join(''):'<p class="muted" style="padding-top:16px">Part of the trust layer — it pairs with any card.</p>'}</div></div>
+  <div><h2 class="h2">Seen in our work</h2><div class="rows" style="margin-top:16px">${used.length?used.map(x=>`<a class="r" href="#p-${x.slug}">${mark(x.status)}<b style="min-width:0;flex:1">${esc(x.name)}<span class="small muted" style="display:block;font-weight:400">${esc(x.client)}, ${STATUS[x.status].toLowerCase()}</span></b>${icon.arrow}</a>`).join(''):'<p class="muted" style="padding-top:16px">Not used in a project yet.</p>'}</div></div></div></section>
+  <div class="next"><a href="#pattern-${prev.id}"><span class="label">Previous in ${esc(cap.name)}</span><div class="h3">${esc(prev.name)}</div></a><a href="#pattern-${nxt.id}" style="text-align:right"><span class="label">Next in ${esc(cap.name)}</span><div class="h3">${esc(nxt.name)}</div></a></div></div>`)}
+function viewSystemMap(){return shell('explore',`<div class="wrap page">${crumbs([['Explore','#explore'],['System map']])}
+ <h1 class="h1">How everything connects</h1><p class="lead" style="margin-top:16px">Every AI Card points to what the AI does, and from there to the patterns that show it in a product. Projects use all three.</p>
+ <div class="summary-strip" style="margin-top:48px">${[[24,'AI Cards','in 6 families'],[CAPS.length,'Capabilities','what the AI does'],[PATS.length,'Patterns','how it looks and behaves'],[PROJECTS.length,'Projects','that used them']].map(([n,a,b])=>`<div><b>${n}</b><span>${a}</span><small>${b}</small></div>`).join('')}</div>
+ <div class="map-legend"><span><span class="layer-dot core"></span>Core interaction</span><span><span class="layer-dot trust"></span>Trust and control</span><span>Every tag opens its pattern</span></div>
+ ${FAMILIES.map(f=>`<section style="margin-top:56px"><h2 class="h3">${f.name}</h2><div style="overflow-x:auto;margin-top:12px"><table class="trace map-table"><thead><tr><th>AI Card</th><th>Capability</th><th>Patterns</th></tr></thead><tbody>${f.cards.map(([id,n])=>`<tr><td><button data-card="${id}">${esc(n)}</button></td><td>${MAP[id].caps.length?MAP[id].caps.map(c=>`<button class="link" style="font-weight:500;color:var(--muted)" data-gocap="${c}">${esc(CB[c].name)}</button>`).join(', '):'Trust layer'}</td><td><div class="tags">${MAP[id].pats.map(p=>`<a class="chip tag" href="#pattern-${p}">${esc(PB[p].name)}<span class="layer-dot ${PB[p].layer}" aria-label="${PB[p].layer==='core'?'Core':'Trust'}"></span></a>`).join('')}</div></td></tr>`).join('')}</tbody></table></div></section>`).join('')}</div>`)}
+
+/* ===== start: a blueprint in any order ===== */
+const SECTIONS=[['problem','The problem','scope'],['users','Who it’s for','scope'],['metric','How we’ll know it worked','scope'],['cards','Capabilities','caps'],['build','What we’d build','concept'],['format','What we offer','concept'],['patterns','Pattern set','patterns']];
+const GROUPS=['scope','caps','concept','patterns'];
+function drafts(){return store.get('drafts2',{})}
+function saveDraft(d){if(d.sample)return;d.updated=Date.now();const all=drafts();all[d.id]=d;store.set('drafts2',all)}
+function openDrafts(){return Object.values(drafts()).filter(d=>d.client&&!d.addedTo).sort((a,b)=>b.updated-a.updated)}
+const isFilled=(d,k)=>k==='cards'?d.cards.length>0:k==='patterns'?Object.values(d.patterns).includes('use'):!!String(d[k]||'').trim();
+const filledCount=d=>SECTIONS.filter(([k])=>isFilled(d,k)).length;
+const newDraft=(o={})=>({id:'d'+Date.now(),path:null,client:null,topic:'',problem:'',users:'',metric:'',cards:[],format:'',build:'',patterns:{},group:'entry',intent:null,sample:false,...o});
+let D=null,SV='entry',readOnly=false;
+function suggested(d){const t=(d.problem+' '+(d.topic||'')).toLowerCase();const s=[];
+ if(/summar|long|claim|report|notes|brief/.test(t))s.push('explain-generate');if(/form|document|claim|retype|extract|contract|pdf/.test(t))s.push('read-interpret');
+ if(/late|risk|predict|miss|forecast|churn/.test(t))s.push('predict-outcomes');if(/find|search|six systems|prepare|knowledge/.test(t))s.push('retrieve-knowledge');
+ if(/approve|send|action|decide|help first|automate/.test(t))s.push('trigger-actions');
+ ['explain-generate','read-interpret','trigger-actions'].forEach(x=>{if(s.length<3&&!s.includes(x))s.push(x)});return s.slice(0,3)}
+function patternSet(d){const seen=new Set(),list=[];d.cards.forEach(c=>MAP[c].pats.forEach(p=>{if(!seen.has(p)){seen.add(p);list.push({id:p,from:CARDS[c].name})}}));
+ Object.keys(d.patterns).forEach(p=>{if(!seen.has(p)&&PB[p]){seen.add(p);list.push({id:p,from:'Chosen from the library'})}});
+ if(!seen.has('cite'))list.push({id:'cite',from:'Trust, recommended for every AI feature'});return list}
+function ensurePatterns(d){patternSet(d).forEach((p,i)=>{if(!(p.id in d.patterns))d.patterns[p.id]=(i<2||p.id==='cite')?'use':'skip'})}
+function taskTop(){const right=SV==='entry'?`<button class="btn btn-sm btn-ghost" data-exit>Close ${icon.close}</button>`:SV==='blueprint'||SV==='example'?`<button class="btn btn-sm btn-ghost" data-exit>Close ${icon.close}</button>`:`<button class="btn btn-sm btn-ghost" data-exit>${D?.sample?'Exit':'Save and exit'}</button>`;
+ const ctx=D&&D.client&&SV!=='entry'?`<span class="avatar">${esc(D.client.id)}</span><span class="t">${esc(D.client.name)}${D.topic?` <em>· ${esc(D.topic)}</em>`:''}</span>`:`<span class="logo"><b>LOKA</b><i></i>Start a project</span>`;
+ const n=D?filledCount(D):0;const filled=D&&GROUPS.includes(SV)?`<div class="filled" aria-label="${n} of 7 sections filled">${SECTIONS.map((s,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}<span>${n} of 7 sections filled</span></div>`:'';
+ return `<header class="task-top"><div class="wrap"><div class="task-ctx">${ctx}</div>${filled}<div class="task-right">${right}</div></div></header>`}
+function bpPanel(){const n=filledCount(D);const cur=SECTIONS.filter(s=>s[2]===SV).map(s=>s[0]);
+ const val=k=>{if(k==='cards')return `<div class="minis">${D.cards.map(c=>cardArt(c)).join('')}<span style="margin-left:6px;font-size:14px">${D.cards.map(c=>esc(CARDS[c].name)).join(', ')}</span></div>`;
+  if(k==='patterns')return esc(Object.entries(D.patterns).filter(([,v])=>v==='use').map(([p])=>PB[p]?.name).join(', '));if(k==='format'){const f=FORMATS.find(x=>x.slug===D.format);return esc(f?f.name+', '+f.dur:'')}return esc(D[k])};
+ return `<aside class="bp" aria-label="Blueprint sections"><div class="hd"><div><p class="label">Blueprint</p><div class="h3">${esc(D.client?.name||'New project')}</div>${D.topic?`<p class="small muted">${esc(D.topic)}</p>`:''}</div><span class="count">${n} of 7, any order</span></div>
+  ${SECTIONS.map(([k,l,g])=>`<button class="f ${cur.includes(k)?'cur':''}" data-jump="${g}" data-focus="${k}"><h5>${l}</h5>${isFilled(D,k)?(k==='cards'?val(k):`<p>${val(k)}</p>`):'<span class="add">Add</span>'}</button>`).join('')}
+  <p class="note">Click any section to jump to it. Nothing is required.</p></aside>`}
+function foot(){const i=GROUPS.indexOf(SV);const last=i===GROUPS.length-1;const empty=SECTIONS.filter(s=>s[2]===SV).some(([k])=>!isFilled(D,k));
+ return `<div class="task-foot"><button class="label" data-back>Back</button><div class="r">${empty&&!last?'<button class="label" data-next>Skip for now</button>':''}<button class="btn btn-primary" data-next>${last?'See the blueprint':'Continue'}</button></div></div>`}
+function viewStart(){if(SV==='entry')return taskTop()+viewEntry();if(SV==='client')return taskTop()+viewClient();if(SV==='project')return taskTop()+viewExisting();
+ if(SV==='blueprint'||SV==='example')return taskTop()+viewBlueprint();
+ let body='';
+ if(SV==='scope')body=`<p class="label">Scope</p><h1 class="q">What is the problem?</h1><p class="sub">In the client’s words, the way they said it. Fill what you know — you can come back to anything.</p>
+  <div class="inputs">${D.path==='loka'||!D.topic?`<div><label for="tp">What is it called?</label><input id="tp" data-bind="topic" value="${esc(D.topic)}" placeholder="Claims handling"></div>`:''}
+  <div><label for="pb">The problem</label><textarea id="pb" rows="5" data-bind="problem" data-k="problem">${esc(D.problem)}</textarea>${D.client?.notes&&D.problem===D.client.notes?'<p class="hint">Suggested from Notion notes, Oct 7. Edit freely.</p>':''}</div>
+  <div class="pair"><div><label for="us">Who is it for?</label><input id="us" data-bind="users" data-k="users" value="${esc(D.users)}"></div><div><label for="mt">How will we know it worked?</label><input id="mt" data-bind="metric" data-k="metric" value="${esc(D.metric)}"></div></div></div>`;
+ if(SV==='caps'){const sug=suggested(D);const order=[...new Set([...sug,...D.cards,...Object.keys(CARDS)])];
+  body=`<p class="label">Capabilities</p><h1 class="q">What can AI do here?</h1><p class="sub">Pick the AI Cards that fit. Three are suggested from the problem.</p>
+  <div class="capgrid">${order.slice(0,D.showAll?24:6).map(id=>`<button class="capbtn" data-pick="${id}" aria-pressed="${D.cards.includes(id)}"><span class="ck" aria-hidden="true">✓</span>${cardArt(id)}<span class="m">${esc(CARDS[id].name)}${sug.includes(id)?'<small>Suggested</small>':''}</span></button>`).join('')}</div>
+  ${D.showAll?'':'<button class="btn btn-ghost" style="margin-top:24px" data-showall>Show all 24 cards</button>'}`}
+ if(SV==='concept')body=`<p class="label">Concept</p><h1 class="q">What would we build, and how do we start?</h1><p class="sub">One sentence for the idea. Pick a format if one fits — or leave it open.</p>
+  <div class="inputs"><div><label for="bd">What would we build?</label><textarea id="bd" rows="3" data-bind="build" data-k="build" placeholder="A first-pass summary of each simple claim…">${esc(D.build)}</textarea></div></div>
+  <div role="radiogroup" aria-label="Format" style="margin-top:28px"><p style="font-weight:600;font-size:14px;margin-bottom:4px">How we’d start with the client</p>${FORMATS.map(f=>`<button class="fmt" role="radio" data-fmt="${f.slug}" aria-checked="${D.format===f.slug}"><span class="radio"></span><div><b>${f.name}</b><small>${f.dur}</small><p>${f.when}</p></div></button>`).join('')}</div>`;
+ if(SV==='patterns'){ensurePatterns(D);body=`<p class="label">Pattern set</p><h1 class="q">How will it look and behave?</h1><p class="sub">These patterns come from the AI Cards you picked. Keep the ones that fit.</p>
+  <div style="margin-top:28px">${patternSet(D).map(p=>{const P=PB[p.id];const on=D.patterns[p.id]==='use';return `<div class="prow ${on?'':'skip'}">${demo(p.id,'row')}<div class="t"><b>${esc(P.name)}</b><small>From ${esc(p.from)}</small><p>${esc(P.use)}</p></div><div class="seg" role="group" aria-label="${esc(P.name)}"><button data-pp="${p.id}" data-v="use" aria-pressed="${on}">Use</button><button data-pp="${p.id}" data-v="skip" aria-pressed="${!on}">Skip</button></div></div>`}).join('')}</div>`}
+ return taskTop()+`<main class="wrap"><div class="task"><div>${D.sample?'<p class="sample" style="margin-bottom:20px">Sample client — nothing is saved</p>':''}${body}${foot()}</div>${bpPanel()}</div></main>`}
+function viewEntry(){const pick=openDrafts();
+ return `<main class="wrap"><div class="entry"><h1 class="q">What are you starting?</h1><p class="sub">You’ll end with a one-page blueprint. Fill what you know, skip the rest.</p>
+  <div class="paths">${[['new','+','A new client project','Nothing is scoped yet. Work out what to offer.'],['existing','↻','An existing project','Already running. We’ll prefill what we know.'],['loka','◇','A Loka project','A product, a tool for the team, or a demo.']].map(([k,g,t,d])=>`<button class="path" data-path="${k}"><span class="g" aria-hidden="true">${g}</span><b>${t}</b><p>${d}</p></button>`).join('')}</div>
+  <div class="side-links"><span>Just exploring? <button data-path="sample">Try it with a sample client</button></span><span aria-hidden="true">·</span><button data-example>See an example blueprint</button></div>
+  ${pick.length?`<div class="pickup"><div class="sec-head" style="margin-bottom:10px"><b style="font-size:15px">Pick up where you left off</b></div>${pick.slice(0,4).map(d=>{const n=filledCount(d);return `<button class="r" data-continue="${d.id}"><span class="n"><b>${esc(d.client.name)}</b><em>${esc(d.topic||'')}</em></span><span class="filled">${SECTIONS.map((s,i)=>`<i class="${i<n?'on':''}"></i>`).join('')}<span>${n} of 7</span></span><small>${new Date(d.updated).toLocaleDateString(undefined,{month:'short',day:'numeric'})}</small><span class="link">Continue</span></button>`}).join('')}</div>`:''}</div></main>`}
+function viewClient(){return `<main class="wrap"><div class="task" style="grid-template-columns:minmax(0,720px)"><div><p class="label">A new client project</p><h1 class="q">Who is the client?</h1><p class="sub">Known clients bring their notes from Notion. A new one starts empty.</p>
+  <div class="pick-list">${CLIENTS.map(c=>`<button class="pick" data-client="${c.id}"><span class="avatar">${c.id}</span><div><b>${c.name}</b><small>${c.meta}${c.topic?', '+c.topic:''}</small></div><small class="hide-sm" style="color:var(--faint)">${c.last}</small></button>`).join('')}
+  <form class="newrow" id="newclient"><span class="avatar" style="background:var(--surface);color:var(--fg)">+</span><label class="vh" for="nc">New client name</label><input id="nc" placeholder="New client" autocomplete="off"><button class="btn btn-sm btn-primary" type="submit">Add</button></form></div>
+  <div class="task-foot"><button class="label" data-back>Back</button></div></div></div></main>`}
+function viewExisting(){const live=PROJECTS.filter(p=>p.status!=='shipped');return `<main class="wrap"><div class="task" style="grid-template-columns:minmax(0,720px)"><div><p class="label">An existing project</p><h1 class="q">Which project?</h1><p class="sub">We’ll prefill the blueprint with what we already know about it.</p>
+  <div class="pick-list">${live.map(p=>`<button class="pick" data-existing="${p.slug}"><span class="avatar">${esc(p.client.split(/\s+/).map(w=>w[0]).join('').slice(0,2))}</span><div><b>${esc(p.name)}</b><small>${esc(p.client)}, ${STATUS[p.status].toLowerCase()}</small></div>${icon.arrow}</button>`).join('')}</div>
+  <div class="task-foot"><button class="label" data-back>Back</button></div></div></div></main>`}
+function viewBlueprint(){const f=FORMATS.find(x=>x.slug===D.format);const pats=Object.entries(D.patterns).filter(([,v])=>v==='use').map(([k])=>k);const n=filledCount(D);const ro=SV==='example';
+ const row=(k,label,v,g)=>`<div><span>${label}</span><p class="${v?'':'empty'}">${v?esc(v):'Not filled yet'}</p>${ro?'':`<button class="edit" data-jump="${g}" data-focus="${k}">${v?'Edit':'Add'}</button>`}</div>`;
+ const inWork=D.addedTo?PROJECTS.find(p=>p.slug===D.addedTo):null;
+ return `<main class="wrap page"><div class="doc"><div class="page-head"><div><p class="label">Blueprint, ${n} of 7 sections</p><h1 class="h1" style="margin-top:10px">${esc(D.client?.name||'New project')}</h1><p class="lead">${D.topic?esc(D.topic)+'. ':''}One page for everyone who builds, sells or manages it.</p></div>
+  <div class="acts">${ro?'<button class="btn btn-primary" data-path-new>Start your own</button>':`<button class="btn btn-ghost" data-copy>Copy as text</button>${D.sample?'':inWork?`<a class="btn btn-primary" href="#p-${inWork.slug}">Open in Work</a>`:'<button class="btn btn-primary" data-addwork>Add to Work</button>'}`}</div></div>
+  ${ro?'<p class="sample" style="margin-top:20px">Example — read only</p>':D.sample?'<p class="sample" style="margin-top:20px">Sample client — nothing is saved</p>':''}
+  <div class="onepage">${row('problem','The problem',D.problem,'scope')}${row('users','Who it’s for',D.users,'scope')}${row('build','What we’d build',D.build,'concept')}${row('metric','How we’ll know it worked',D.metric,'scope')}${row('format','What we offer',f?f.name+', '+f.dur:'','concept')}</div>
+  <div class="bp-detail"><div><div class="hd"><span class="label">Capabilities</span>${ro?'':`<button class="edit" data-jump="caps">${D.cards.length?'Edit':'Add'}</button>`}</div><div style="display:flex;gap:10px;flex-wrap:wrap">${D.cards.length?D.cards.map(c=>cardArt(c,'width:88px')).join(''):'<p class="muted small">No cards chosen yet.</p>'}</div></div>
+  <div><div class="hd"><span class="label">Pattern set</span>${ro?'':`<button class="edit" data-jump="patterns">${pats.length?'Edit':'Add'}</button>`}</div>${pats.length?`<div class="bp-pats">${pats.map(id=>`<div>${demo(id,'mini')}<b class="small" style="display:block;margin-top:8px">${esc(PB[id].name)}</b></div>`).join('')}</div>`:'<p class="muted small">No patterns chosen yet.</p>'}</div></div>
+  ${f&&!ro?`<div class="connect" style="margin-top:48px"><div><b class="h3">Next: propose the ${esc(f.name)}</b><p class="muted" style="margin-top:4px">Adding to Work creates the project as Scoping, so everyone can follow it.</p></div></div>`:''}</div></main>`}
+
+/* ===== search ===== */
+function paletteItems(){const it=[];
+ it.push({g:'Actions',t:'Start a project',s:'New client, existing project, or a Loka project',w:'Action',act:'start'});
+ it.push({g:'Popular',t:'What’s in progress',s:PROJECTS.filter(p=>p.status==='progress').length+' projects',w:'Work',h:'work-in-progress'},{g:'Popular',t:'AI Capability Cards',s:'24 cards in 6 families',w:'Explore',h:'ai-cards'},{g:'Popular',t:'UI Patterns for AI',s:PATS.length+' patterns, playing live',w:'Explore',h:'ui-patterns'});
+ PROJECTS.forEach(p=>it.push({g:'Projects',t:p.name,s:p.client+', '+STATUS[p.status].toLowerCase(),w:'Work',h:'p-'+p.slug}));
+ Object.values(CARDS).forEach(c=>it.push({g:'AI Cards',t:c.name,s:c.desc,w:'Explore',card:c.id}));
+ PATS.forEach(p=>it.push({g:'Patterns',t:p.name,s:p.use,w:'Explore',h:'pattern-'+p.id}));
+ CAPS.forEach(c=>it.push({g:'What the AI does',t:c.name,s:c.desc,w:'Explore',cap:c.id}));
+ it.push({g:'Pages',t:'System map',s:'Cards, capabilities and patterns',w:'Explore',h:'system-map'});return it}
+let palSel=0,palList=[];
+function openPalette(){openLayer(`<div class="palette" role="dialog" aria-modal="true" aria-label="Search">
+  <div class="in">${icon.search}<label class="vh" for="pq">Search the hub</label><input id="pq" placeholder="Search projects, cards and patterns…" autocomplete="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-controls="pres" aria-expanded="true">
+  <button class="pal-close" data-close aria-label="Close search"><kbd class="k-esc">esc</kbd><span class="k-cancel">Cancel</span></button></div>
+  <div class="res" id="pres" role="listbox" aria-label="Results"></div>
+  <div class="ft"><span><kbd>↑</kbd><kbd>↓</kbd> to move</span><span><kbd>↵</kbd> to open</span><span class="ft-count" aria-live="polite"></span></div></div>`,true);
+ const q=$('#pq'),res=$('#pres');q.focus();
+ const hl=(t,v)=>{if(!v)return esc(t);const i=t.toLowerCase().indexOf(v);return i<0?esc(t):esc(t.slice(0,i))+'<mark>'+esc(t.slice(i,i+v.length))+'</mark>'+esc(t.slice(i+v.length))};
+ const select=k=>{palSel=k;$$('.it',res).forEach((el,i)=>el.setAttribute('aria-selected',i===k));const el=$(`#opt-${k}`);if(el){q.setAttribute('aria-activedescendant',el.id);el.scrollIntoView({block:'nearest'})}};
+ const render=()=>{const v=q.value.trim().toLowerCase();const all=paletteItems();
+  palList=v?all.filter(i=>(i.t+' '+(i.s||'')+' '+i.g).toLowerCase().includes(v)).sort((a,b)=>(a.t.toLowerCase().startsWith(v)?0:a.t.toLowerCase().includes(v)?1:2)-(b.t.toLowerCase().startsWith(v)?0:b.t.toLowerCase().includes(v)?1:2)).slice(0,20):all.filter(i=>['Actions','Popular'].includes(i.g)).concat(all.filter(i=>i.h==='p-claims-assistant').map(i=>({...i,g:'Recent'})));
+  if(v){const order=[];palList.forEach(i=>{if(!order.includes(i.g))order.push(i.g)});palList.sort((a,b)=>order.indexOf(a.g)-order.indexOf(b.g))}
+  palSel=Math.min(palSel,Math.max(palList.length-1,0));let g='';
+  res.innerHTML=palList.length?palList.map((i,k)=>{const head=i.g!==g?`<h5 role="presentation">${i.g}</h5>`:'';g=i.g;return head+`<div class="it" id="opt-${k}" role="option" data-k="${k}" aria-selected="${k===palSel}"><div><b>${hl(i.t,v)}</b>${i.s?`<small>${esc(i.s)}</small>`:''}</div><span class="where">${i.w==='Action'?'Action':i.w}</span><span class="enter" aria-hidden="true">↵</span></div>`}).join('')
+   :`<div class="none"><b>No results for “${esc(q.value)}”</b><p>Try a client, a card or a pattern — like “Northwind”, “Predict” or “Citations”.</p></div>`;
+  $('.ft-count').textContent=v?`${palList.length} result${palList.length===1?'':'s'}`:'';
+  if(palList.length)select(palSel);else q.removeAttribute('aria-activedescendant')};
+ render();q.addEventListener('input',()=>{palSel=0;render()});
+ q.addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();if(!palList.length)return;select(e.key==='ArrowDown'?(palSel+1)%palList.length:(palSel-1+palList.length)%palList.length)}
+  else if(e.key==='Enter'&&palList[palSel]){e.preventDefault();go(palList[palSel])}else if(e.key==='Tab'){e.preventDefault()}});
+ res.addEventListener('mousemove',e=>{const it=e.target.closest('.it');if(it&&+it.dataset.k!==palSel)select(+it.dataset.k)});
+ res.addEventListener('click',e=>{const it=e.target.closest('.it');if(it)go(palList[+it.dataset.k])})}
+function go(i){closeLayer();if(i.card){if(route!=='ai-cards')location.hash='ai-cards';setTimeout(()=>openCard(i.card),60);return}if(i.cap){patCap=i.cap;if(route==='ui-patterns')render();else location.hash='ui-patterns';setTimeout(()=>$('#library')?.scrollIntoView(),80);return}if(i.act==='start'){startFresh();return}location.hash=i.h}
+
+/* ===== layer ===== */
+let lastFocus=null;
+function openLayer(html,top){lastFocus=document.activeElement;const L=$('#layer');L.innerHTML=`<div class="scrim">${html}</div>`;document.body.style.overflow='hidden';
+ const sc=$('.scrim',L);sc.addEventListener('click',e=>{if(e.target===sc)closeLayer()});if(!top){const f=$('[data-close]',L);f&&f.focus()}}
+function closeLayer(){if(!$('#layer').innerHTML)return;$('#layer').innerHTML='';document.body.style.overflow='';if(lastFocus&&lastFocus.focus&&document.contains(lastFocus))lastFocus.focus()}
+
+/* ===== router ===== */
+function startFresh(intent){D=newDraft({intent:intent||null});SV='entry';if(route==='start')rerender();else location.hash='start'}
+const trail=[];try{history.scrollRestoration='manual'}catch(e){}
+function render(){const h=(location.hash||'#home').slice(1)||'home';if(trail.length)trail[trail.length-1].y=scrollY;const back=trail.length>1&&trail[trail.length-2].h===h;if(back)trail.pop();else trail.push({h,y:0});if(trail.length>30)trail.shift();const restoreY=back?trail[trail.length-1].y:0;if(route!=='start'&&h==='start')lastRoute=route;if(h!=='start')lastRoute=h;route=h;let html;
+ if(h==='home')html=viewHome();
+ else if(h==='work'){workFilter='all';html=viewWork()}else if(h==='work-shipped'){workFilter='shipped';html=viewWork()}else if(h==='work-in-progress'){workFilter='progress';html=viewWork()}else if(h==='work-scoping'){workFilter='scoping';html=viewWork()}
+ else if(h.startsWith('p-'))html=viewProject(h.slice(2));
+ else if(h==='explore')html=viewExplore();else if(h==='ai-cards')html=viewCards();
+ else if(h.startsWith('card-')){html=viewCards();setTimeout(()=>openCard(h.slice(5)),30)}
+ else if(h==='ui-patterns')html=viewPatterns();else if(h.startsWith('pattern-'))html=viewPattern(h.slice(8));
+ else if(h==='system-map')html=viewSystemMap();
+ else if(h==='start'){if(!D){D=newDraft();SV='entry'}html=viewStart()}
+ else html=viewHome();
+ closeLayer();const app=$('#app');app.innerHTML=html;app.dataset.anim='1';clearTimeout(window._anim);window._anim=setTimeout(()=>delete app.dataset.anim,700);if(restoreY){requestAnimationFrame(()=>window.scrollTo(0,restoreY))}else if(!h.startsWith('pattern-')||true)window.scrollTo(0,0);
+ document.title=(h==='home'?'Builders — Design at Loka':(($('h1')?.textContent)||'Builders')+' — Builders')}
+window.addEventListener('hashchange',render);
+function rerender(keep){const y=scrollY;const app=$('#app');app.innerHTML=viewStart();if(keep)scrollTo(0,y);else{scrollTo(0,0);app.dataset.step='1';clearTimeout(window._st);window._st=setTimeout(()=>delete app.dataset.step,500)}if(window._just){const b=$(`[data-pick="${window._just}"]`);b&&b.classList.add('just');window._just=null}}
+function goGroup(g,focusKey){SV=g;D.group=g;if(g==='patterns')ensurePatterns(D);saveDraft(D);rerender();if(focusKey){const el=$(`[data-k="${focusKey}"]`);el&&el.focus()}}
+function afterSetup(){const g=D.intent||'scope';if(D.intent==='patterns'&&D.pat){D.patterns[D.pat]='use'}goGroup(g)}
+
+/* ===== events ===== */
+document.addEventListener('keydown',e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openPalette()}if(e.key==='Escape')closeLayer()});
+document.addEventListener('click',e=>{const t=e.target.closest('button,a');if(!t)return;
+ if(t.matches('[data-setcap]')){patCap=t.dataset.setcap}
+ if(t.matches('[data-theme-toggle]')){toggleTheme();return}
+ if(t.matches('[data-palette]')){e.preventDefault();openPalette();return}
+ if(t.matches('[data-close]')){closeLayer();return}
+ if(t.matches('[data-toast]')){e.preventDefault();toast(t.dataset.toast);return}
+ if(t.matches('[data-card]')){e.preventDefault();openCard(t.dataset.card);return}
+ if(t.matches('[data-wf]')){workFilter=t.dataset.wf;$('#app').innerHTML=viewWork();return}
+ if(t.matches('[data-fam]')){famSel=t.dataset.fam;const y=scrollY;$('#app').innerHTML=viewCards();scrollTo(0,y);return}
+ if(t.matches('[data-pcap]')||t.matches('[data-psurf]')||t.matches('[data-gocap]')){if(t.dataset.pcap)patCap=t.dataset.pcap;if(t.dataset.psurf)patSurf=t.dataset.psurf;if(t.dataset.gocap){patCap=t.dataset.gocap;location.hash='ui-patterns';setTimeout(()=>$('#library')?.scrollIntoView(),80);return}
+  const y=scrollY;$('#library').innerHTML=libraryBlock();scrollTo(0,y);return}
+ if(t.matches('[data-continue]')){e.preventDefault();const d=drafts()[t.dataset.continue];if(d){D=d;SV=GROUPS.includes(d.group)?d.group:'scope';if(route==='start')rerender();else location.hash='start'}return}
+ // entry points into Start
+ if(t.matches('a[href="#start"]')){e.preventDefault();
+  if(t.dataset.template){const p=PROJECTS.find(x=>x.slug===t.dataset.template);D=newDraft({path:'new',problem:p.problem,build:p.built||'',users:p.users||'',metric:p.metric||'',cards:[...p.cards],patterns:Object.fromEntries(p.patterns.map(x=>[x,'use'])),topic:p.name+' (template)'});SV='client'}
+  else if(t.dataset.intent){D=newDraft({intent:t.dataset.intent,pat:t.dataset.pat||null});SV='entry'}
+  else {D=newDraft();SV='entry'}
+  if(route==='start')rerender();else location.hash='start';return}
+ if(route!=='start')return;
+ if(t.matches('[data-path]')){const k=t.dataset.path;
+  if(k==='new'){D.path='new';SV='client';rerender()}
+  else if(k==='existing'){D.path='existing';SV='project';rerender()}
+  else if(k==='loka'){D.path='loka';D.client={id:'LO',name:'Loka'};afterSetup()}
+  else if(k==='sample'){const c=CLIENTS[0];D=newDraft({path:'sample',sample:true,client:c,topic:c.topic,problem:c.notes,users:c.users,metric:c.metric,intent:D.intent});afterSetup()}return}
+ if(t.matches('[data-path-new]')){D=newDraft();SV='entry';rerender();return}
+ if(t.matches('[data-example]')){const c=CLIENTS[0];D=newDraft({sample:true,client:c,topic:c.topic,problem:c.notes,users:c.users,metric:c.metric,build:'A first-pass summary of each simple claim, evidence attached. The adjuster approves or sends it back.',format:'genai-workshop',cards:['explain-generate','read-interpret'],patterns:{tldr:'use',autofill:'use',cite:'use'}});SV='example';rerender();return}
+ if(t.matches('[data-client]')){const c=CLIENTS.find(x=>x.id===t.dataset.client);D.client={id:c.id,name:c.name,notes:c.notes};if(!D.topic)D.topic=c.topic;if(!D.problem)D.problem=c.notes;if(!D.users)D.users=c.users;if(!D.metric)D.metric=c.metric;afterSetup();return}
+ if(t.matches('[data-existing]')){const p=PROJECTS.find(x=>x.slug===t.dataset.existing);D.client={id:p.client.split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase(),name:p.client};Object.assign(D,{topic:p.name,problem:p.problem,build:p.built||'',users:p.users||'',metric:p.metric||'',cards:[...p.cards],patterns:Object.fromEntries(p.patterns.map(x=>[x,'use'])),from:p.slug});afterSetup();return}
+ if(t.matches('[data-pick]')){const id=t.dataset.pick;window._just=id;D.cards=D.cards.includes(id)?D.cards.filter(x=>x!==id):[...D.cards,id];saveDraft(D);rerender(true);return}
+ if(t.matches('[data-showall]')){D.showAll=true;rerender(true);return}
+ if(t.matches('[data-fmt]')){D.format=D.format===t.dataset.fmt?'':t.dataset.fmt;saveDraft(D);rerender(true);return}
+ if(t.matches('[data-pp]')){D.patterns[t.dataset.pp]=t.dataset.v;saveDraft(D);rerender(true);return}
+ if(t.matches('[data-jump]')){goGroup(t.dataset.jump,t.dataset.focus);return}
+ if(t.matches('[data-next]')){const i=GROUPS.indexOf(SV);if(i===GROUPS.length-1){SV='blueprint';D.group='blueprint';saveDraft(D);rerender()}else goGroup(GROUPS[i+1]);return}
+ if(t.matches('[data-back]')){const i=GROUPS.indexOf(SV);if(i>0)goGroup(GROUPS[i-1]);else if(SV==='client'||SV==='project'){SV='entry';rerender()}else{SV=D.path==='new'?'client':D.path==='existing'?'project':'entry';rerender()}return}
+ if(t.matches('[data-exit]')){if(D&&!D.sample&&D.client&&GROUPS.includes(SV)){saveDraft(D);toast('Saved. Pick it up from the home page or Start.')}D=null;location.hash=lastRoute&&lastRoute!=='start'?lastRoute:'home';return}
+ if(t.matches('[data-copy]')){const f=FORMATS.find(x=>x.slug===D.format);const txt=`${D.client?.name||'New project'}${D.topic?' — '+D.topic:''}\nThe problem: ${D.problem}\nWho it’s for: ${D.users}\nWhat we’d build: ${D.build}\nHow we’ll know it worked: ${D.metric}\nWhat we offer: ${f?f.name:''}`;
+  (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>toast('Blueprint copied as text.'),()=>toast('Copy isn’t available in this browser.'));return}
+ if(t.matches('[data-addwork]')){const n=filledCount(D);const p={slug:'bp-'+Date.now(),status:'scoping',client:D.client?.name||'New client',industry:'',type:'Blueprint',year:'2026',name:D.topic||'New project',line:D.build||D.problem||'A new blueprint.',vis:null,now:`Blueprint, ${n} of 7 sections`,next:'',problem:D.problem,built:D.build,users:D.users,metric:D.metric,cards:[...D.cards],patterns:Object.entries(D.patterns).filter(([,v])=>v==='use').map(([k])=>k),team:'You',time:'Started today'};
+  const added=store.get('added2',[]);added.push(p);store.set('added2',added);PROJECTS.push(p);D.addedTo=p.slug;saveDraft(D);D=null;location.hash='work';setTimeout(()=>toast('Added to Work as Scoping.'),80);return}
+});
+document.addEventListener('submit',e=>{if(e.target.id==='newclient'){e.preventDefault();const n=$('#nc').value.trim();if(!n)return;D.client={id:n.split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase(),name:n};afterSetup()}});
+document.addEventListener('input',e=>{const b=e.target.dataset?.bind;if(!b||route!=='start'||!D)return;D[b]=e.target.value;saveDraft(D);const bp=$('.bp');if(bp)bp.outerHTML=bpPanel();const top=$('.task-top');if(top)top.outerHTML=taskTop()});
+render();
+</script>
+</body>
+</html>
